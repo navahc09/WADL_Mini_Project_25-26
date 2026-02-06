@@ -119,49 +119,64 @@ gantt
 ## System Architecture
 
 ```mermaid
-graph TB
-    subgraph "Client Layer"
-        A[Next.js Frontend]
+graph TD
+    %% Actors
+    Student([Student])
+    Admin([TNP Admin])
+
+    %% Frontend Layer
+    subgraph Frontend ["Frontend (React)"]
+        UI_Login[Login / Auth]
+        UI_Profile[Profile Dashboard]
+        UI_JobBoard[Job Board & Filters]
+        UI_Admin[Admin Dashboard]
     end
-    
-    subgraph "API Gateway"
-        B[Microservices]
+
+    %% Backend Layer
+    subgraph Backend ["Backend API (Node/Express)"]
+        Auth_Svc[Auth Middleware]
+        
+        subgraph Logic_Core
+            Profile_Mgr[Profile Manager]
+            Criteria_Eng[Criteria Matching Engine]
+            Apply_Svc[Application & Snapshot Service]
+            Export_Svc[Excel/Report Generator]
+        end
     end
-    
-    subgraph "Core Services"
-        C[Authentication Service]
-        D[Profile Service]
-        E[Document Vault Service]
-        F[Job Management Service]
-        G[Notification Service]
+
+    %% Data Layer
+    subgraph Data_Layer ["Database & Storage"]
+        DB_Users[(Users & Profiles Collection)]
+        DB_Jobs[(Jobs & Criteria Collection)]
+        DB_Applications[(Applications Snapshot Collection)]
+        File_Store[Resume/File Storage]
     end
+
+    %% Interactions - Student Flow
+    Student -->|1. Register/Login| UI_Login
+    Student -->|2. CRUD Details| UI_Profile
+    UI_Profile -->|Update Data| Profile_Mgr
+    Profile_Mgr -->|Save Live Data| DB_Users
+    Profile_Mgr -->|Upload Resume| File_Store
+
+    Student -->|3. View Jobs| UI_JobBoard
+    UI_JobBoard -->|Request Eligible Jobs| Criteria_Eng
+    Criteria_Eng -->|Fetch Student Profile & Job Criteria| DB_Users & DB_Jobs
+    Criteria_Eng -.->|Return ONLY Matching Jobs| UI_JobBoard
+
+    Student -->|4. Click Apply| UI_JobBoard
+    UI_JobBoard -->|Trigger Application| Apply_Svc
+    Apply_Svc -->|Fetch Current Profile Data| DB_Users
+    Apply_Svc -->|Create Immutable Snapshot| DB_Applications
     
-    subgraph "Data Layer"
-        H[PostgreSQL Database]
-        I[GCP Storage]
-    end
+    %% Interactions - Admin Flow
+    Admin -->|5. Create Job Post| UI_Admin
+    UI_Admin -->|Save Criteria CGPA/Branch| DB_Jobs
     
-    subgraph "Messaging"
-        J[Kafka Event Bus]
-    end
-    
-    subgraph "AI Services"
-        K[Vertex AI - OCR & Matching]
-    end
-    
-    A --> B
-    B --> C
-    B --> D
-    B --> E
-    B --> F
-    B --> G
-    C --> H
-    D --> H
-    E --> I
-    F --> H
-    G --> J
-    E --> K
-    F --> K
+    Admin -->|6. Download Excel| UI_Admin
+    UI_Admin -->|Request Report| Export_Svc
+    Export_Svc -->|Fetch Frozen Snapshots| DB_Applications
+    Export_Svc -->|Generate .xlsx| Admin
 ```
 
 ---
