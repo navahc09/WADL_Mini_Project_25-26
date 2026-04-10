@@ -5,6 +5,8 @@ import SurfaceCard from "./ui/SurfaceCard";
 import { cn } from "../lib/utils";
 
 export default function JobCard({ job, className }) {
+  const isEligible = job.eligible !== false;
+
   return (
     <motion.div
       whileHover={{ y: -4 }}
@@ -30,12 +32,12 @@ export default function JobCard({ job, className }) {
           <span
             className={cn(
               "rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em]",
-              job.eligible
+              isEligible
                 ? "bg-emerald-100 text-emerald-700"
                 : "bg-error-container text-on-error-container",
             )}
           >
-            {job.eligible ? "Eligible" : "Not Eligible"}
+            {isEligible ? "Eligible" : "Not Eligible"}
           </span>
         </div>
 

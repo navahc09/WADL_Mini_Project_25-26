@@ -177,19 +177,19 @@ async function getDashboard(_req, res, next) {
       feed: [
         latestApplicationResult.rows[0]
           ? {
-              id: "feed-latest-application",
-              title: `${latestApplicationResult.rows[0].company_name} applicant pipeline updated`,
-              detail: `${latestApplicationResult.rows[0].title} received fresh application activity.`,
-              time: formatDateLabel(latestApplicationResult.rows[0].updated_at),
-            }
+            id: "feed-latest-application",
+            title: `${latestApplicationResult.rows[0].company_name} applicant pipeline updated`,
+            detail: `${latestApplicationResult.rows[0].title} received fresh application activity.`,
+            time: formatDateLabel(latestApplicationResult.rows[0].updated_at),
+          }
           : null,
         latestJobResult.rows[0]
           ? {
-              id: "feed-latest-job",
-              title: `${latestJobResult.rows[0].company_name} role posted`,
-              detail: `${latestJobResult.rows[0].title} is live in the placement board.`,
-              time: formatDateLabel(latestJobResult.rows[0].created_at),
-            }
+            id: "feed-latest-job",
+            title: `${latestJobResult.rows[0].company_name} role posted`,
+            detail: `${latestJobResult.rows[0].title} is live in the placement board.`,
+            time: formatDateLabel(latestJobResult.rows[0].created_at),
+          }
           : null,
         {
           id: "feed-summary",
@@ -244,10 +244,10 @@ async function createJob(req, res, next) {
             location,
             salary_label,
             min_cgpa,
+            max_active_backlogs,
             allowed_branches,
             required_skills,
             tags,
-            graduation_year,
             featured,
             openings,
             about_company,
@@ -259,9 +259,9 @@ async function createJob(req, res, next) {
             application_deadline
           )
           VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10::text[], $11::text[], $12::text[],
-            NULL, FALSE, 1, $13, $14::text[], $15::text[], $16::text[], $17::text[],
-            'open', $18
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::text[], $12::text[], $13::text[],
+            FALSE, 1, $14, $15::text[], $16::text[], $17::text[], $18::text[],
+            'open', $19
           )
           RETURNING *
         `,
@@ -275,11 +275,12 @@ async function createJob(req, res, next) {
           req.body.location,
           req.body.salaryLabel || req.body.jobPackage || null,
           Number(req.body.minCgpa),
+          Number(req.body.maxActiveBacklogs ?? 0),
           normalizeCsv(req.body.branches),
           normalizeCsv(req.body.skills || req.body.tags),
           normalizeCsv(req.body.tags || req.body.skills),
           req.body.aboutCompany ||
-            `${companyName} is hiring through the placement cell for a curated campus opportunity with growth-oriented project exposure.`,
+          `${companyName} is hiring through the placement cell for a curated campus opportunity with growth-oriented project exposure.`,
           normalizeList(req.body.responsibilities),
           normalizeList(req.body.requirements).length
             ? normalizeList(req.body.requirements)
@@ -607,17 +608,18 @@ async function updateJob(req, res, next) {
            location             = COALESCE($6, location),
            salary_label         = COALESCE($7, salary_label),
            min_cgpa             = COALESCE($8, min_cgpa),
-           allowed_branches     = COALESCE($9, allowed_branches),
-           required_skills      = COALESCE($10, required_skills),
-           tags                 = COALESCE($11, tags),
-           about_company        = COALESCE($12, about_company),
-           responsibilities     = COALESCE($13, responsibilities),
-           requirements         = COALESCE($14, requirements),
-           perks                = COALESCE($15, perks),
-           process              = COALESCE($16, process),
-           application_deadline = COALESCE($17, application_deadline),
+           max_active_backlogs  = COALESCE($9, max_active_backlogs),
+           allowed_branches     = COALESCE($10, allowed_branches),
+           required_skills      = COALESCE($11, required_skills),
+           tags                 = COALESCE($12, tags),
+           about_company        = COALESCE($13, about_company),
+           responsibilities     = COALESCE($14, responsibilities),
+           requirements         = COALESCE($15, requirements),
+           perks                = COALESCE($16, perks),
+           process              = COALESCE($17, process),
+           application_deadline = COALESCE($18, application_deadline),
            updated_at           = NOW()
-         WHERE id = $18
+         WHERE id = $19
          RETURNING *`,
         [
           companyId,
@@ -628,6 +630,7 @@ async function updateJob(req, res, next) {
           body.location || null,
           body.salaryLabel || body.jobPackage || null,
           body.minCgpa !== undefined ? Number(body.minCgpa) : null,
+          body.maxActiveBacklogs !== undefined ? Number(body.maxActiveBacklogs) : null,
           body.branches ? normalizeCsv(body.branches) : null,
           body.skills ? normalizeCsv(body.skills) : null,
           body.tags ? normalizeCsv(body.tags) : null,

@@ -9,6 +9,8 @@ function sanitizeUser(row) {
     role: row.role,
     isActive: row.is_active,
     emailVerified: row.email_verified,
+    branch: row.branch,
+    cgpa: row.cgpa
   };
 }
 

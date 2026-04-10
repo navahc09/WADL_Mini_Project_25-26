@@ -56,6 +56,7 @@ export default function EditJobPage() {
       location: "",
       salaryLabel: "",
       minCgpa: "",
+      maxActiveBacklogs: "",
       branches: "",
       skills: "",
       deadline: "",
@@ -79,6 +80,7 @@ export default function EditJobPage() {
       location: job.location || "",
       salaryLabel: job.salaryLabel || "",
       minCgpa: job.minCgpa || "",
+      maxActiveBacklogs: job.maxActiveBacklogs ?? "",
       branches: (job.branches || []).join(", "),
       skills: (job.tags || []).join(", "),
       deadline: deadlineRaw,
@@ -101,6 +103,7 @@ export default function EditJobPage() {
         location: values.location,
         salaryLabel: values.salaryLabel,
         minCgpa: Number(values.minCgpa),
+        maxActiveBacklogs: Number(values.maxActiveBacklogs ?? 0),
         branches: values.branches,
         skills: values.skills,
         deadline: values.deadline,
@@ -265,6 +268,16 @@ export default function EditJobPage() {
                 step="0.01"
                 disabled={isClosed}
                 {...register("minCgpa")}
+              />
+            </label>
+            <label className="space-y-2 text-sm">
+              <span className="ml-1 block text-on-surface-variant">Max Active Backlogs</span>
+              <input
+                className="field-shell w-full"
+                type="number"
+                min="0"
+                disabled={isClosed}
+                {...register("maxActiveBacklogs")}
               />
             </label>
             <label className="space-y-2 text-sm">

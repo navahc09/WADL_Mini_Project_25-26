@@ -1,4 +1,5 @@
 import {
+  AlertTriangle,
   ArrowLeft,
   Building2,
   CalendarClock,
@@ -131,6 +132,41 @@ export default function JobDetailPage() {
           <SurfaceCard className="p-6">
             <span className="section-label">Eligibility</span>
             <div className="mt-5 space-y-4">
+              {/* Eligibility Status Badge */}
+              <div
+                className={`flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${job.eligible !== false
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-red-50 text-red-700"
+                  }`}
+              >
+                {job.eligible !== false ? (
+                  <>
+                    <CheckCircle2 className="h-4 w-4" />
+                    You are eligible for this role
+                  </>
+                ) : (
+                  <>
+                    <AlertTriangle className="h-4 w-4" />
+                    You are not eligible for this role
+                  </>
+                )}
+              </div>
+
+              {/* Ineligibility Reasons */}
+              {job.eligible === false && job.reasons?.length > 0 && (
+                <div className="space-y-2 rounded-[1.2rem] border border-red-100 bg-red-50/40 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-red-500">Why you're not eligible</p>
+                  <ul className="space-y-1">
+                    {job.reasons.map((reason) => (
+                      <li key={reason} className="flex items-start gap-2 text-sm text-red-700">
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-red-400" />
+                        {reason}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <div className="rounded-[1.2rem] bg-surface-container-low p-4">
                 <p className="text-sm text-on-surface-variant">Minimum CGPA</p>
                 <p className="mt-2 font-headline text-3xl font-extrabold">{job.minCgpa}</p>
@@ -167,11 +203,10 @@ export default function JobDetailPage() {
                       {resumes.map((doc) => (
                         <label
                           key={doc.id}
-                          className={`flex cursor-pointer items-center gap-3 rounded-xl p-3 transition-colors ${
-                            (selectedDocId || primaryResume?.id) === doc.id
+                          className={`flex cursor-pointer items-center gap-3 rounded-xl p-3 transition-colors ${(selectedDocId || primaryResume?.id) === doc.id
                               ? "bg-primary/10 ring-1 ring-primary"
                               : "hover:bg-surface-container-lowest"
-                          }`}
+                            }`}
                         >
                           <input
                             type="radio"
@@ -220,8 +255,8 @@ export default function JobDetailPage() {
                     {isApplying
                       ? "Submitting..."
                       : resumes.length > 1 && !showResumePicker
-                      ? "Select Resume & Apply"
-                      : "Apply with selected resume"}
+                        ? "Select Resume & Apply"
+                        : "Apply with selected resume"}
                   </Button>
                 </>
               )}

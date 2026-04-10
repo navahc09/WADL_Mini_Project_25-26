@@ -220,7 +220,7 @@ const jobs = [
     salaryLpa: 9.5,
     salaryLabel: "INR 9.5 LPA",
     minCgpa: 6.5,
-    branches: ["All Branches"],
+    branches: ["CSE"],
     requiredSkills: ["Enterprise", "Cloud", "Delivery"],
     tags: ["Enterprise", "Cloud", "Delivery"],
     featured: false,

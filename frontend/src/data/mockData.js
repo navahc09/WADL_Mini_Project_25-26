@@ -318,7 +318,7 @@ export const jobs = [
     salaryLabel: "₹9.5 LPA",
     packageLpa: 9.5,
     minCgpa: 6.5,
-    branches: ["All Branches"],
+    branches: ["CSE"],
     deadline: "27 Apr 2026",
     posted: "5 days ago",
     eligible: true,

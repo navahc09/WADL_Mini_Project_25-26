@@ -19,6 +19,7 @@ const schema = z.object({
   jobPackage: z.string().min(2, "Package info is required"),
   deadline: z.string().min(2, "Deadline is required"),
   minCgpa: z.coerce.number().min(0).max(10),
+  maxActiveBacklogs: z.coerce.number().int().min(0).default(0),
   branches: z.string().min(2, "Provide eligible branches"),
   skills: z.string().min(2, "Provide skill tags"),
   description: z.string().min(20, "Use a richer description"),
@@ -125,6 +126,10 @@ export default function PostJobPage() {
               <label className="space-y-2 text-sm">
                 <span className="ml-1 block text-on-surface-variant">Minimum CGPA</span>
                 <input className="field-shell w-full" step="0.01" type="number" placeholder="e.g. 7.5" {...register("minCgpa")} />
+              </label>
+              <label className="space-y-2 text-sm">
+                <span className="ml-1 block text-on-surface-variant">Max Active Backlogs</span>
+                <input className="field-shell w-full" type="number" min="0" placeholder="e.g. 0" {...register("maxActiveBacklogs")} />
               </label>
             </div>
           </SurfaceCard>

@@ -14,7 +14,6 @@ function checkEligibility(profile, job) {
   const reasons = [];
   const minCgpa = Number(job.minCgpa ?? job.min_cgpa ?? 0);
   const maxActiveBacklogs = Number(job.maxActiveBacklogs ?? job.max_active_backlogs ?? 0);
-  const requiredGraduationYear = job.graduationYear ?? job.graduation_year;
 
   if (Number(profile.cgpa) < minCgpa) {
     reasons.push(`CGPA ${profile.cgpa} is below required ${minCgpa}`);
@@ -22,13 +21,6 @@ function checkEligibility(profile, job) {
 
   if (Number(profile.activeBacklogs ?? profile.active_backlogs ?? 0) > maxActiveBacklogs) {
     reasons.push(`Active backlogs exceed allowed maximum of ${maxActiveBacklogs}`);
-  }
-
-  if (
-    requiredGraduationYear &&
-    Number(profile.graduationYear ?? profile.graduation_year) !== Number(requiredGraduationYear)
-  ) {
-    reasons.push(`Graduation year ${profile.graduationYear ?? profile.graduation_year} is not eligible`);
   }
 
   const allowedBranches = getAllowedBranches(job).map(normalize);

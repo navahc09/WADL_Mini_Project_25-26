@@ -9,6 +9,7 @@ const createJobSchema = Joi.object({
   salaryLabel: Joi.string(),
   jobPackage: Joi.string(),
   minCgpa: Joi.number().min(0).max(10).required(),
+  maxActiveBacklogs: Joi.number().integer().min(0).default(0),
   branches: Joi.alternatives(
     Joi.array().items(Joi.string()),
     Joi.string().min(2),
@@ -65,6 +66,7 @@ const updateJobSchema = Joi.object({
   salaryLabel: Joi.string(),
   jobPackage: Joi.string(),
   minCgpa: Joi.number().min(0).max(10),
+  maxActiveBacklogs: Joi.number().integer().min(0),
   branches: Joi.alternatives(
     Joi.array().items(Joi.string()),
     Joi.string().min(2),

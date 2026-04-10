@@ -28,15 +28,14 @@ const schema = z.object({
 });
 
 const BRANCH_OPTIONS = [
-  "Computer Science & Engineering",
+  "Computer Engineering",
   "Information Technology",
-  "Electronics & Communication",
-  "Electrical Engineering",
-  "Mechanical Engineering",
+  "Electronics & Telecommunication",
+  "Electronics & Computer Engineering",
   "Artificial Intelligence & Data Science",
 ];
 
-const GRADUATION_YEARS = ["2025", "2026", "2027", "2028"];
+const GRADUATION_YEARS = ["2026", "2027", "2028", "2029"];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -286,7 +285,7 @@ export default function RegisterPage() {
                     </label>
                     <input
                       className="field-shell w-full"
-                      placeholder="e.g. CSE2026-001"
+                      placeholder="e.g. I2K231212"
                       {...register("rollNumber")}
                     />
                     {errors.rollNumber && (
