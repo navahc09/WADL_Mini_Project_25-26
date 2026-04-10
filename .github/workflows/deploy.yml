@@ -76,8 +76,23 @@ jobs:
             fi
 
             echo "── Health check"
-            sleep 3
-            curl -sf http://localhost:5000/health || (echo "Health check FAILED" && exit 1)
+            for attempt in 1 2 3 4 5 6 7 8 9 10; do
+              if curl -sf http://localhost:5000/health; then
+                echo
+                echo "✅ Backend health check passed"
+                break
+              fi
+
+              if [ "$attempt" -eq 10 ]; then
+                echo "Health check FAILED"
+                pm2 status || true
+                pm2 logs tnp-backend --lines 50 || true
+                exit 1
+              fi
+
+              echo "   Waiting for backend to become ready... (attempt $attempt/10)"
+              sleep 3
+            done
 
             echo "✅ Backend deployed"
 
