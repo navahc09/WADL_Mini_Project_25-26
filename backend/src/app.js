@@ -15,27 +15,35 @@ const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
+const DEV_ORIGINS = ["http://localhost:5173", "http://localhost:5174"];
+
 const allowedOrigins = [process.env.FRONTEND_URL, process.env.FRONTEND_URLS]
   .filter(Boolean)
   .flatMap((value) => String(value).split(","))
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+if (allowedOrigins.length === 0) {
+  console.warn(
+    "[CORS] FRONTEND_URL is not set — allowing localhost dev origins only. " +
+    "Set FRONTEND_URL=https://your-cloudfront-domain.cloudfront.net in .env for production.",
+  );
+}
+
+const effectiveOrigins = allowedOrigins.length > 0
+  ? [...allowedOrigins, ...DEV_ORIGINS]  // production: CloudFront + localhost
+  : DEV_ORIGINS;                          // dev only
+
 app.use(helmet());
 app.use(
   cors({
     origin(origin, callback) {
+      // Allow server-to-server (no origin), Postman, curl
       if (!origin) {
         callback(null, true);
         return;
       }
-
-      if (allowedOrigins.length === 0) {
-        callback(null, origin === "http://localhost:5173");
-        return;
-      }
-
-      callback(null, allowedOrigins.includes(origin));
+      callback(null, effectiveOrigins.includes(origin));
     },
     credentials: true,
   }),
