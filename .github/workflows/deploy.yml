@@ -66,32 +66,30 @@ jobs:
             sudo nginx -t && sudo systemctl reload nginx
 
             echo "── Starting / reloading PM2"
-            if pm2 list | grep -q "tnp-backend"; then
-              pm2 reload tnp-backend --update-env
-            else
-              cd "$REPO_DIR/backend"
-              pm2 start ecosystem.config.js
-              pm2 startup | tail -1 | bash || true
-              pm2 save
-            fi
+            pm2 delete tnp-backend || true
+            cd "$REPO_DIR/backend"
+            pm2 start ecosystem.config.js --update-env
+            pm2 startup | tail -1 | bash || true
+            pm2 save
+            pm2 status tnp-backend || true
 
             echo "── Health check"
-            for attempt in 1 2 3 4 5 6 7 8 9 10; do
-              if curl -sf http://localhost:5000/health; then
+            for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+              if curl -sf http://127.0.0.1:5000/health; then
                 echo
                 echo "✅ Backend health check passed"
                 break
               fi
 
-              if [ "$attempt" -eq 10 ]; then
+              if [ "$attempt" -eq 15 ]; then
                 echo "Health check FAILED"
                 pm2 status || true
                 pm2 logs tnp-backend --lines 50 || true
                 exit 1
               fi
 
-              echo "   Waiting for backend to become ready... (attempt $attempt/10)"
-              sleep 3
+              echo "   Waiting for backend to become ready... (attempt $attempt/15)"
+              sleep 5
             done
 
             echo "✅ Backend deployed"
