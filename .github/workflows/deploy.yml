@@ -143,10 +143,30 @@ jobs:
 
       - name: Invalidate CloudFront
         run: |
+          CF_DISTRIBUTION_ID='${{ secrets.CF_DISTRIBUTION_ID }}'
+
+          if [ -z "$CF_DISTRIBUTION_ID" ]; then
+            echo "CF_DISTRIBUTION_ID secret is empty. Skipping invalidation."
+            exit 0
+          fi
+
+          case "$CF_DISTRIBUTION_ID" in
+            http://*|https://*|*.cloudfront.net)
+              echo "CF_DISTRIBUTION_ID must be a CloudFront distribution ID (example: E123ABC456), not a URL/domain."
+              exit 1
+              ;;
+          esac
+
+          echo "Invalidating CloudFront distribution: $CF_DISTRIBUTION_ID"
           aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CF_DISTRIBUTION_ID }} \
+            --distribution-id "$CF_DISTRIBUTION_ID" \
             --paths "/*"
 
       - name: Summary
         run: |
-          echo "✅ Frontend deployed to https://${{ secrets.CF_DISTRIBUTION_ID }}.cloudfront.net"
+          CF_DISTRIBUTION_ID='${{ secrets.CF_DISTRIBUTION_ID }}'
+          if [ -n "$CF_DISTRIBUTION_ID" ]; then
+            echo "✅ Frontend deployed to https://${CF_DISTRIBUTION_ID}.cloudfront.net"
+          else
+            echo "✅ Frontend deployed to S3 (CloudFront invalidation skipped: CF_DISTRIBUTION_ID is empty)"
+          fi
