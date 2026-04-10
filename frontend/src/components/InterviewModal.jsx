@@ -2,9 +2,9 @@ import { Calendar, CheckCircle2, Clock, Loader2, Plus, X, XCircle } from "lucide
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import Button from "../ui/Button";
-import SurfaceCard from "../ui/SurfaceCard";
-import { useInterviewRounds, useScheduleRound, useUpdateRoundResult } from "../../hooks/useInterviews";
+import Button from "./ui/Button";
+import SurfaceCard from "./ui/SurfaceCard";
+import { useInterviewRounds, useScheduleRound, useUpdateRoundResult } from "../hooks/useInterviews";
 
 const ROUND_TYPE_OPTIONS = [
   { value: "aptitude", label: "Aptitude Test" },
