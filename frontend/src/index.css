@@ -1,0 +1,145 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color: #191c1e;
+    background: #f7f9fb;
+    font-family: "Inter", sans-serif;
+  }
+
+  * {
+    @apply box-border;
+  }
+
+  body {
+    @apply bg-surface text-on-surface antialiased;
+    margin: 0;
+    min-width: 320px;
+    overflow-x: hidden;
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  ::selection {
+    background: rgba(180, 197, 255, 0.45);
+  }
+}
+
+@layer components {
+  .signature-gradient {
+    @apply bg-signature;
+  }
+
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+
+  .ambient-shadow {
+    @apply shadow-ambient;
+  }
+
+  .ghost-ring {
+    box-shadow: inset 0 0 0 1px rgba(195, 198, 215, 0.15);
+  }
+
+  .editorial-shell {
+    background:
+      radial-gradient(circle at top left, rgba(219, 225, 255, 0.92), transparent 28%),
+      radial-gradient(circle at bottom right, rgba(255, 181, 150, 0.22), transparent 24%),
+      linear-gradient(180deg, #f7f9fb 0%, #f2f4f6 100%);
+  }
+
+  .surface-card {
+    @apply rounded-[1.4rem] bg-surface-container-lowest ambient-shadow transition-[transform,box-shadow,background-color,border-color] duration-300;
+    box-shadow:
+      0 10px 30px rgba(0, 74, 198, 0.06),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+  }
+
+  .section-label {
+    @apply rounded-full bg-primary-fixed px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-on-primary-fixed-variant;
+  }
+
+  .field-shell {
+    @apply rounded-2xl border border-outline-variant/35 bg-surface-container-low px-4 py-3.5 text-sm text-on-surface placeholder:text-outline outline-none transition-all duration-200 focus:border-primary/40 focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/15;
+  }
+
+  .panel-border {
+    box-shadow: inset 0 0 0 1px rgba(195, 198, 215, 0.12);
+  }
+
+  .panel-hover {
+    @apply hover:-translate-y-1 hover:shadow-halo;
+  }
+
+  .interactive-strip {
+    @apply transition-all duration-300 hover:bg-surface-container-high;
+  }
+
+  .page-section {
+    @apply stagger-fade;
+  }
+
+  .compact-section {
+    @apply rounded-[1.5rem] bg-surface-container-low p-5 md:p-6;
+    box-shadow: inset 0 0 0 1px rgba(195, 198, 215, 0.08);
+  }
+
+  .stagger-fade {
+    animation: fade-up 560ms ease both;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Thin scrollbar for content area */
+.content-scroll,
+main {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 74, 198, 0.18) transparent;
+}
+
+.content-scroll::-webkit-scrollbar,
+main::-webkit-scrollbar {
+  width: 4px;
+}
+
+.content-scroll::-webkit-scrollbar-track,
+main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.content-scroll::-webkit-scrollbar-thumb,
+main::-webkit-scrollbar-thumb {
+  background: rgba(0, 74, 198, 0.18);
+  border-radius: 99px;
+}
+
+.content-scroll::-webkit-scrollbar-thumb:hover,
+main::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 74, 198, 0.32);
+}

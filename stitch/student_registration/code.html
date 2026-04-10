@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registration | TNP Connect</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#0053db",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#eceef0",
+                        "outline": "#737686",
+                        "outline-variant": "#c3c6d7",
+                        "secondary-fixed-dim": "#b9c7df",
+                        "on-tertiary-container": "#ffede6",
+                        "tertiary": "#943700",
+                        "on-surface-variant": "#434655",
+                        "on-primary-fixed": "#00174b",
+                        "tertiary-fixed": "#ffdbcd",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary-container": "#d5e3fc",
+                        "inverse-surface": "#2d3133",
+                        "background": "#f7f9fb",
+                        "on-tertiary-fixed": "#360f00",
+                        "on-background": "#191c1e",
+                        "inverse-on-surface": "#eff1f3",
+                        "primary-fixed": "#dbe1ff",
+                        "tertiary-container": "#bc4800",
+                        "surface": "#f7f9fb",
+                        "primary": "#004ac6",
+                        "secondary-fixed": "#d5e3fc",
+                        "inverse-primary": "#b4c5ff",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#eeefff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed": "#0d1c2e",
+                        "on-secondary-container": "#57657a",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "primary-container": "#2563eb",
+                        "on-surface": "#191c1e",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#3a485b",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "surface-container-high": "#e6e8ea",
+                        "secondary": "#515f74",
+                        "surface-dim": "#d8dadc",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "surface-bright": "#f7f9fb",
+                        "surface-container-low": "#f2f4f6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface font-body text-on-surface selection:bg-primary-fixed">
+<div class="min-h-screen flex flex-col md:flex-row">
+<aside class="hidden md:flex md:w-1/3 lg:w-2/5 bg-primary relative overflow-hidden flex-col justify-between p-12">
+<div class="absolute inset-0 bg-gradient-to-br from-primary to-primary-container opacity-90 z-0"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<span class="text-white font-headline font-black text-2xl tracking-tight">TNP Connect</span>
+</div>
+</div>
+<div class="relative z-10">
+<h1 class="text-white font-headline text-5xl font-extrabold leading-tight mb-6">Your Career <br/>Masterpiece Starts Here.</h1>
+<p class="text-primary-fixed font-body text-lg max-w-sm leading-relaxed">Join the architectural gallery of professional talent. Connect with top-tier companies and define your future.</p>
+<div class="mt-12 space-y-6">
+<div class="flex items-center gap-4 text-white/90">
+<span class="material-symbols-outlined">verified</span>
+<span class="font-medium">Verified Campus Placements</span>
+</div>
+<div class="flex items-center gap-4 text-white/90">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-medium">Real-time Application Tracking</span>
+</div>
+<div class="flex items-center gap-4 text-white/90">
+<span class="material-symbols-outlined">school</span>
+<span class="font-medium">Direct Academic Integration</span>
+</div>
+</div>
+</div>
+<div class="relative z-10 pt-8 border-t border-white/10">
+<div class="flex items-center gap-4">
+<div class="flex -space-x-3">
+<img class="w-10 h-10 rounded-full border-2 border-primary" data-alt="professional portrait of a young woman student with a confident smile in a bright setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMoz67EV2wXp-_smK4Y4rnppfgpbSybmbLc7ybv5aQFJUawTWXi80gqardDt_sqnP72nTfXJYFq2EIagkDJjth0n0wmRSNqpdXQ0mVL8iY9TfwGToR8o7D_2X26TSayPrR7wFUpyWEHo7eQHJ1KTUwRnm-ahSvZ3TMSyWiTlISSJP2uRJDwwqiim7ViApeh7fNEq7YayLM8QcachxSEY8UZyA7BMNyVYe-56PLzcyk_bgpX68h7b11IVibfiJ3DGhIiSMyp-WdYNUp"/>
+<img class="w-10 h-10 rounded-full border-2 border-primary" data-alt="close up of a young man smiling in a modern office environment with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmnvCVZc88j6OX_qxChYO85xVXAJmCGb_agB1PslOuBszQtl8jJy8BO4pQSxKBJH9JBX8qrY4deovGOrendhZSvck2h4z7RwEgOTcCbu5ai91fAfQ5UTjoZruUm2UWgRs_M4CjJStuYyz-tjCFxPF8DsbIgUmTYe2FEBrGYUYyyXK5mZ64fMbvjWgO2w5kgTZFnpEofjilaWZvs9DGQI8Nd2sATM7uTYOtH4E4npRGEasjveRKvjXRN7IrHomTmpVzvwzpbkiYPa6f"/>
+<img class="w-10 h-10 rounded-full border-2 border-primary" data-alt="smiling female graduate in business casual attire with soft urban background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNyMMdTPmxmdTLPDy54zHWGYLFlPNOL2I_DcwvVJcHK0uAsHWJcpGdoqrYCTZUJE5d81DyPAqa5OnZIuNV-ppp2yvmaIUZ9CkzjpE7lWv89mxer86jTrdO2Vaqws_4gLUqOxVV6Knj7_VAK8erAU2FjycTW6zV3e828K1DFpz7QNTLlSlrVZ5oPgVqD6Q7_TXixzsHCEOMRUunsECwL8-kuYESLEjt_cJguJjzAmE2IkNnK6tbX_IFxUtVpdFMuUM8HwBXdML6_pia"/>
+</div>
+<p class="text-sm text-primary-fixed/80">Joined by 2,000+ students this semester</p>
+</div>
+</div>
+<div class="absolute -bottom-24 -left-24 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+<div class="absolute top-1/2 -right-32 w-80 h-80 bg-primary-container/30 rounded-full blur-3xl"></div>
+</aside>
+<main class="flex-1 flex flex-col justify-center items-center p-6 md:p-12 lg:p-24 overflow-y-auto">
+<div class="w-full max-w-2xl space-y-12">
+<header class="space-y-2">
+<div class="md:hidden flex items-center gap-2 mb-8">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="font-headline font-black text-xl text-primary tracking-tight">TNP Connect</span>
+</div>
+<h2 class="font-headline text-3xl font-bold tracking-tight text-on-surface">Student Registration</h2>
+<p class="text-on-surface-variant">Create your profile to access premium career opportunities.</p>
+</header>
+<form class="space-y-10">
+<section class="space-y-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary font-bold">1</div>
+<h3 class="font-headline text-xl font-bold">Account Credentials</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface-variant px-1">Email Address</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-0 rounded-xl py-3.5 pl-11 pr-4 focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all duration-300" placeholder="student@university.edu" type="email"/>
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-lg">mail</span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface-variant px-1">Password</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-0 rounded-xl py-3.5 pl-11 pr-4 focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all duration-300" placeholder="••••••••" type="password"/>
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-lg">lock</span>
+</div>
+<p class="text-[11px] text-outline px-1">Minimum 8 characters with 1 symbol.</p>
+</div>
+</div>
+</section>
+<section class="space-y-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary font-bold">2</div>
+<h3 class="font-headline text-xl font-bold">Personal Identity</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface-variant px-1">Full Name</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-0 rounded-xl py-3.5 pl-11 pr-4 focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all duration-300" placeholder="Alex Rivera" type="text"/>
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-lg">person</span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface-variant px-1">Phone Number</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-0 rounded-xl py-3.5 pl-11 pr-4 focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all duration-300" placeholder="+1 (555) 000-0000" type="tel"/>
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-lg">call</span>
+</div>
+</div>
+</div>
+</section>
+<section class="space-y-6 bg-surface-container-low p-8 rounded-2xl">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-primary font-bold">3</div>
+<h3 class="font-headline text-xl font-bold">Academic Portfolio</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface-variant px-1">Roll Number</label>
+<input class="w-full bg-surface-container-lowest border-0 rounded-xl py-3.5 px-4 focus:ring-2 focus:ring-primary transition-all duration-300" placeholder="CS2024-001" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface-variant px-1">Academic Branch</label>
+<select class="w-full bg-surface-container-lowest border-0 rounded-xl py-3.5 px-4 focus:ring-2 focus:ring-primary transition-all duration-300 appearance-none">
+<option disabled="" selected="" value="">Select Specialization</option>
+<option>Computer Science &amp; Engineering</option>
+<option>Electronics &amp; Communication</option>
+<option>Mechanical Engineering</option>
+<option>Business Administration</option>
+<option>Data Science</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface-variant px-1">Graduation Year</label>
+<select class="w-full bg-surface-container-lowest border-0 rounded-xl py-3.5 px-4 focus:ring-2 focus:ring-primary transition-all duration-300">
+<option>2024</option>
+<option>2025</option>
+<option>2026</option>
+<option>2027</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface-variant px-1">Current CGPA</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-0 rounded-xl py-3.5 px-4 focus:ring-2 focus:ring-primary transition-all duration-300" max="10" placeholder="0.00" step="0.01" type="number"/>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_rgba(148,55,0,0.4)]"></span>
+<span class="text-[10px] font-bold text-tertiary">LIVE TRACK</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<div class="flex flex-col sm:flex-row gap-6 pt-6">
+<button class="flex-1 bg-gradient-to-r from-primary to-primary-container text-white font-bold py-4 px-8 rounded-xl shadow-[0_8px_32px_rgba(0,74,198,0.12)] hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2" type="submit">
+                            Initialize Account
+                            <span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+<button class="sm:w-auto px-8 py-4 bg-surface-container-high text-on-surface font-semibold rounded-xl hover:bg-surface-container-highest transition-colors" type="button">
+                            Already Have Access?
+                        </button>
+</div>
+<p class="text-center text-sm text-outline px-4 max-w-md mx-auto leading-relaxed">
+                        By registering, you agree to our <a class="text-primary font-medium underline underline-offset-4 decoration-primary/30" href="#">Terms of Excellence</a> and <a class="text-primary font-medium underline underline-offset-4 decoration-primary/30" href="#">Career Privacy Policy</a>.
+                    </p>
+</form>
+</div>
+</main>
+</div>
+<div class="fixed bottom-6 right-6 z-40 hidden md:block">
+<div class="glass-panel p-4 rounded-2xl shadow-xl border border-white/40 flex items-center gap-4 max-w-xs">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+</div>
+<div>
+<p class="text-xs font-bold text-tertiary uppercase tracking-wider">Design Tip</p>
+<p class="text-[13px] text-on-surface-variant leading-snug">A complete academic profile increases visibility by 40%.</p>
+</div>
+</div>
+</div>
+</body></html>

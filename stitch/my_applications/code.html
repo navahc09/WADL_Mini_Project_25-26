@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Applications | TNP Connect</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#0053db",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#eceef0",
+                        "outline": "#737686",
+                        "outline-variant": "#c3c6d7",
+                        "secondary-fixed-dim": "#b9c7df",
+                        "on-tertiary-container": "#ffede6",
+                        "tertiary": "#943700",
+                        "on-surface-variant": "#434655",
+                        "on-primary-fixed": "#00174b",
+                        "tertiary-fixed": "#ffdbcd",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary-container": "#d5e3fc",
+                        "inverse-surface": "#2d3133",
+                        "background": "#f7f9fb",
+                        "on-tertiary-fixed": "#360f00",
+                        "on-background": "#191c1e",
+                        "inverse-on-surface": "#eff1f3",
+                        "primary-fixed": "#dbe1ff",
+                        "tertiary-container": "#bc4800",
+                        "surface": "#f7f9fb",
+                        "primary": "#004ac6",
+                        "secondary-fixed": "#d5e3fc",
+                        "inverse-primary": "#b4c5ff",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#eeefff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed": "#0d1c2e",
+                        "on-secondary-container": "#57657a",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "primary-container": "#2563eb",
+                        "on-surface": "#191c1e",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#3a485b",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "surface-container-high": "#e6e8ea",
+                        "secondary": "#515f74",
+                        "surface-dim": "#d8dadc",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "surface-bright": "#f7f9fb",
+                        "surface-container-low": "#f2f4f6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- SideNavBar Anchor -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-slate-50 flex flex-col h-full p-4 gap-2 z-40 hidden md:flex">
+<div class="flex items-center gap-3 px-4 py-6">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<div>
+<h1 class="font-manrope font-extrabold text-blue-800 text-lg leading-tight">TNP Portal</h1>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest">Career-defining Gallery</p>
+</div>
+</div>
+<nav class="flex-1 mt-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 hover:translate-x-1 transition-all scale-95 active:scale-100 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 hover:translate-x-1 transition-all scale-95 active:scale-100 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">work</span> Job Board
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-white text-blue-700 rounded-lg shadow-sm font-semibold transition-all scale-95 active:scale-100 text-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">assignment_turned_in</span> My Applications
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 hover:translate-x-1 transition-all scale-95 active:scale-100 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">stars</span> Placements
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 hover:translate-x-1 transition-all scale-95 active:scale-100 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">event_available</span> Schedule
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 hover:translate-x-1 transition-all scale-95 active:scale-100 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">insert_chart</span> Analytics
+            </a>
+</nav>
+<div class="mt-auto border-t border-slate-200 pt-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 font-medium text-sm transition-all" href="#">
+<span class="material-symbols-outlined">help_outline</span> Support
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 font-medium text-sm transition-all" href="#">
+<span class="material-symbols-outlined">logout</span> Sign Out
+            </a>
+</div>
+</aside>
+<!-- TopNavBar Anchor -->
+<header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl flex justify-between items-center px-6 py-3 w-full mx-auto md:pl-72 shadow-sm">
+<div class="flex items-center gap-8">
+<div class="md:hidden text-2xl font-black tracking-tight text-blue-700">TNP Connect</div>
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-slate-600 hover:text-blue-600 transition-colors font-medium text-sm" href="#">Explore Jobs</a>
+<a class="text-slate-600 hover:text-blue-600 transition-colors font-medium text-sm" href="#">Companies</a>
+<a class="text-slate-600 hover:text-blue-600 transition-colors font-medium text-sm" href="#">Resources</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-xs w-64 focus:ring-2 focus:ring-primary/20" placeholder="Search applications..." type="text"/>
+</div>
+<button class="w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-50 rounded-full transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-primary-container">
+<img alt="User profile" data-alt="close-up portrait of a young professional smiling confidently in a modern office environment with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3eaYAr39Mwf4nhVvp-38vHDhL3O57M2ZKdJel2AGDTsWAlzgDGCC9ftcqwHmU1-0pkZ_WhUbTjoLUlty0jJsi9ykcEhMkZqao2jHmfECjMx__dNqPeS2yo7GuJxgiG3fpxbjUlW9f4vUrQgVnUAUlNQRJ9ncZhTyzTUcnx1tDkD3miE_lQxGI6-2CumwmRAIkSlpQcbH4rDZRLQ9rqukiiU1U4qYwzihHKUH5li8nEozGmEBCRKIeuRM5jjvoEfRINaFzH3fTljlU"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-24 pb-12 px-6 md:pl-72 max-w-7xl mx-auto">
+<!-- Hero Header Section -->
+<section class="mb-12">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<span class="inline-block px-3 py-1 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold uppercase tracking-widest rounded-full mb-4">Application Hub</span>
+<h2 class="font-manrope text-5xl font-extrabold tracking-tight text-on-surface mb-2">My Applications</h2>
+<p class="text-on-surface-variant max-w-xl text-lg font-medium">Tracking your journey through the corporate gateway. You have <span class="text-primary font-bold">12 active applications</span> across 4 industries.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-3 bg-surface-container-high text-on-surface font-semibold rounded-xl text-sm transition-all hover:scale-[1.02] active:scale-95">Download PDF Resume</button>
+<button class="px-6 py-3 bg-gradient-to-br from-primary to-primary-container text-white font-semibold rounded-xl text-sm shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95">Find More Jobs</button>
+</div>
+</div>
+</section>
+<!-- Stats Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
+<div class="md:col-span-1 p-6 bg-surface-container-lowest rounded-xl shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-primary bg-primary/10 p-2 rounded-lg">description</span>
+<span class="text-xs font-bold text-slate-400">TOTAL</span>
+</div>
+<div class="text-3xl font-manrope font-extrabold">24</div>
+<div class="text-sm text-slate-500 font-medium">Applied Jobs</div>
+</div>
+<div class="md:col-span-1 p-6 bg-surface-container-lowest rounded-xl shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-tertiary bg-tertiary/10 p-2 rounded-lg">timer</span>
+<span class="text-xs font-bold text-slate-400">PENDING</span>
+</div>
+<div class="text-3xl font-manrope font-extrabold">08</div>
+<div class="text-sm text-slate-500 font-medium">In Interview Phase</div>
+</div>
+<div class="md:col-span-2 p-6 bg-gradient-to-br from-blue-700 to-blue-900 rounded-xl shadow-xl flex items-center justify-between text-white overflow-hidden relative">
+<div class="relative z-10">
+<div class="text-blue-200 text-xs font-bold uppercase tracking-widest mb-1">Career Health</div>
+<div class="text-2xl font-manrope font-bold mb-2">Shortlist Rate: 34%</div>
+<div class="flex items-center gap-2 text-sm text-blue-100">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+                        Above average for Engineering roles
+                    </div>
+</div>
+<div class="w-32 h-32 relative z-10">
+<!-- Circular progress simulation -->
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-blue-800" cx="64" cy="64" fill="transparent" r="50" stroke="currentColor" stroke-width="12"></circle>
+<circle class="text-white" cx="64" cy="64" fill="transparent" r="50" stroke="currentColor" stroke-dasharray="314" stroke-dashoffset="100" stroke-width="12"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center font-bold text-xl">34%</div>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined text-[120px]">analytics</span>
+</div>
+</div>
+</section>
+<!-- Applications Table Section -->
+<section class="bg-surface-container-low rounded-3xl p-1 overflow-hidden">
+<div class="bg-surface-container-lowest rounded-[22px] overflow-hidden">
+<!-- Filter Bar -->
+<div class="px-8 py-6 flex flex-wrap items-center justify-between gap-4 border-b border-surface-container">
+<div class="flex items-center gap-4">
+<button class="px-4 py-2 bg-primary text-white rounded-full text-xs font-bold">All Applications</button>
+<button class="px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-full text-xs font-semibold transition-colors">Interviews</button>
+<button class="px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-full text-xs font-semibold transition-colors">Offers</button>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 border border-outline-variant/30 rounded-lg text-xs font-bold text-on-surface hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                        Sort &amp; Filter
+                    </button>
+</div>
+<!-- Table Header -->
+<div class="hidden md:grid grid-cols-12 px-8 py-4 bg-slate-50/50 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+<div class="col-span-4">Company &amp; Position</div>
+<div class="col-span-2">Applied Date</div>
+<div class="col-span-3">Pipeline Status</div>
+<div class="col-span-2">Current Status</div>
+<div class="col-span-1 text-right">Actions</div>
+</div>
+<!-- Application Row: Interview Phase -->
+<div class="grid grid-cols-1 md:grid-cols-12 px-8 py-8 items-center hover:bg-slate-50 transition-colors group">
+<div class="col-span-4 flex items-center gap-4 mb-4 md:mb-0">
+<div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center p-2">
+<img alt="Tech Corp Logo" class="w-full h-full object-contain" data-alt="minimalist abstract corporate logo for a technology company featuring geometric shapes in blue and silver" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0SOwrMl_H3PBqGHWc-gSZiFiMAWhW6JP6fvENrZfmHRaf9io0raRxSH7-lvLoMQGNZ9Uy92ui5cwZWvaeS_G5wWEGPArHwxCMU-AVAej4pUuvd4WgZasB5Ewwgv50dyNU14ctkJilR7ufUTSZ0qR8kCAVe63G2PKZYMabsqu4S8F1b0Vb9a75A2NRs_wOYejCDmmn4IkQ8mzn3WPQjdiZndZFUlcLV6KnqV3OrV1Ctg-2CcWwaXsf4P8nAtsalYeolsjOoeifd209"/>
+</div>
+<div>
+<h4 class="font-manrope font-bold text-lg text-on-surface">CloudStream Systems</h4>
+<p class="text-sm text-on-surface-variant font-medium">Senior Frontend Developer</p>
+</div>
+</div>
+<div class="col-span-2 text-sm font-semibold text-slate-600 mb-2 md:mb-0">Oct 24, 2023</div>
+<div class="col-span-3 pr-8 mb-4 md:mb-0">
+<div class="flex justify-between text-[10px] font-bold text-slate-400 mb-2 uppercase">
+<span>Stage 3 of 5</span>
+<span>60%</span>
+</div>
+<div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-tertiary rounded-full shadow-[0_0_8px_rgba(148,55,0,0.3)] w-[60%]"></div>
+</div>
+</div>
+<div class="col-span-2 mb-4 md:mb-0">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full text-xs font-bold">
+<span class="w-2 h-2 bg-tertiary rounded-full animate-pulse"></span>
+                            Interview
+                        </span>
+</div>
+<div class="col-span-1 text-right">
+<button class="text-primary font-bold text-sm hover:underline decoration-2 underline-offset-4">View Details</button>
+</div>
+</div>
+<!-- Application Row: Shortlisted Phase -->
+<div class="grid grid-cols-1 md:grid-cols-12 px-8 py-8 items-center hover:bg-slate-50 transition-colors group">
+<div class="col-span-4 flex items-center gap-4 mb-4 md:mb-0">
+<div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center p-2">
+<img alt="Fintech Logo" class="w-full h-full object-contain" data-alt="sleek professional logo for a financial technology firm with sharp modern typography and emerald accents" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7zwTZ6OrcnPtH0yGww9WFHO7JxU4Oarr30gO9raGWDEcamqIyA-BIcgzawVRvd29COkLfWGtRrtPQ2n2LfJb-usMhOZXfSkiAv9aqXcS2r58M8kZnZcLtvjvppuEhcWUNuRimEGiI4vdWmLXXcesofJGnMswDoVUNeCdyq5MCNxqoQKq56HnraCuQckBDMNcMsFz6hWagjLkMJD-G1KYUyXWDSl22i_oI-eeVycdCYr0i6ig_dItpKO_-m7YcvmBuJ4qIbMaHwfwv"/>
+</div>
+<div>
+<h4 class="font-manrope font-bold text-lg text-on-surface">Nexus Capital</h4>
+<p class="text-sm text-on-surface-variant font-medium">Financial Analyst (Intern)</p>
+</div>
+</div>
+<div class="col-span-2 text-sm font-semibold text-slate-600 mb-2 md:mb-0">Oct 18, 2023</div>
+<div class="col-span-3 pr-8 mb-4 md:mb-0">
+<div class="flex justify-between text-[10px] font-bold text-slate-400 mb-2 uppercase">
+<span>Stage 2 of 5</span>
+<span>40%</span>
+</div>
+<div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-[40%]"></div>
+</div>
+</div>
+<div class="col-span-2 mb-4 md:mb-0">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-bold">
+                            Shortlisted
+                        </span>
+</div>
+<div class="col-span-1 text-right">
+<button class="text-primary font-bold text-sm hover:underline decoration-2 underline-offset-4">View Details</button>
+</div>
+</div>
+<!-- Application Row: Offered Phase -->
+<div class="grid grid-cols-1 md:grid-cols-12 px-8 py-8 items-center bg-green-50/30 hover:bg-green-50 transition-colors group">
+<div class="col-span-4 flex items-center gap-4 mb-4 md:mb-0">
+<div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center p-2 shadow-sm">
+<img alt="Design Studio" class="w-full h-full object-contain" data-alt="creative agency logo with colorful vibrant gradients and rounded modern aesthetics" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPje1gqkJFleduj4nXuq0QyJip6e9HCSwLc3UHgQoWFJyVaYwAsKqe_LdEr9XGyAF_kfk3AWwOq6GBHg_njtsWMPbGvym-qzRpUCrL591FdBNus-28nCTZM-hVKS8hjJs6teW5Nue9BkYQd4vE3ROaeSKEOsdxHzLNEVzAt3Q6hgcEcQZQv6vAh4Sa7RNKC5s3-7AAL_EQMpi9bGfmeT1AQ24-dmHYx6iXD9-0jFhcgcDxHRPVwI38OEoT02wT59YEC2XqecTItsWY"/>
+</div>
+<div>
+<h4 class="font-manrope font-bold text-lg text-on-surface">Lumina Design Hub</h4>
+<p class="text-sm text-on-surface-variant font-medium">UI/UX Design Trainee</p>
+</div>
+</div>
+<div class="col-span-2 text-sm font-semibold text-slate-600 mb-2 md:mb-0">Oct 05, 2023</div>
+<div class="col-span-3 pr-8 mb-4 md:mb-0">
+<div class="flex justify-between text-[10px] font-bold text-slate-400 mb-2 uppercase">
+<span>Stage 5 of 5</span>
+<span>100%</span>
+</div>
+<div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-emerald-500 rounded-full w-[100%] shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+</div>
+</div>
+<div class="col-span-2 mb-4 md:mb-0">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                            Offered
+                        </span>
+</div>
+<div class="col-span-1 text-right">
+<button class="px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold text-xs hover:bg-emerald-700 transition-all shadow-md shadow-emerald-200">Accept Offer</button>
+</div>
+</div>
+<!-- Application Row: Rejected Phase -->
+<div class="grid grid-cols-1 md:grid-cols-12 px-8 py-8 items-center hover:bg-slate-50 transition-colors group opacity-60">
+<div class="col-span-4 flex items-center gap-4 mb-4 md:mb-0">
+<div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center p-2">
+<img alt="Data Corp" class="w-full h-full object-contain" data-alt="minimalist logo for a data science company featuring line art of a graph or nodes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIYw3YYdgzMm4VY3AGApr7_vPB2pDHLIXuozAEzXXVv7ycl3iXlZ7xCq7JO5CwGaMFetvNdIR6s0GJqg3pbdncqAHoAbjncbIY177ZaRMoPw7pfSTRcdEjPZ0ZsgQb32VrgxCkh5skmKrkdrDHPnt3F72HhO9YCJZRbRFuDg_E6feCHkQfb70ttSdoVrDB7tuk1dSQm19aq5oKqIaNdSySWlyxMP6Xirsr5CKrY746swUSqvjUVXrFrUiPZNMiOKRYE3-vC95yTFFm"/>
+</div>
+<div>
+<h4 class="font-manrope font-bold text-lg text-on-surface">DataPulse Analytics</h4>
+<p class="text-sm text-on-surface-variant font-medium">Data Science Associate</p>
+</div>
+</div>
+<div class="col-span-2 text-sm font-semibold text-slate-600 mb-2 md:mb-0">Sep 28, 2023</div>
+<div class="col-span-3 pr-8 mb-4 md:mb-0">
+<div class="flex justify-between text-[10px] font-bold text-slate-400 mb-2 uppercase">
+<span>Stage 1 of 5</span>
+<span>20%</span>
+</div>
+<div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-error rounded-full w-[20%]"></div>
+</div>
+</div>
+<div class="col-span-2 mb-4 md:mb-0">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-error-container text-on-error-container rounded-full text-xs font-bold">
+                            Rejected
+                        </span>
+</div>
+<div class="col-span-1 text-right">
+<button class="text-slate-500 font-bold text-sm hover:underline decoration-2 underline-offset-4">Feedback</button>
+</div>
+</div>
+<!-- Application Row: Applied Phase -->
+<div class="grid grid-cols-1 md:grid-cols-12 px-8 py-8 items-center hover:bg-slate-50 transition-colors group border-b border-surface-container">
+<div class="col-span-4 flex items-center gap-4 mb-4 md:mb-0">
+<div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center p-2">
+<img alt="Eco Tech" class="w-full h-full object-contain" data-alt="eco-friendly technology company logo with leaf elements and clean soft green and teal tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlueMfxW7XxJucAJGunxRRMdKPHCZpHVZgwPxiwtQ9Buk6_I40pwWtC3pc4DEtPzh-Yr_WQSzfN_kNi81ACuFkSnVfHiRPIQdwuEVcCfDEDZww5Ojwifgci7NOTH2kUly6Ifouqc1_lrhEbSXFxbLjBoo_ii_eVCSHmKJn0P6A0XFYGQYaBUjo4mcD9uEi3cmO6rPJ592L1GSt8NfJyuDy5_p4HwJT-kcj01v9cvCxNN7EgOAO5-Aks4ZV2iavXHW1KlOHA5BkqJli"/>
+</div>
+<div>
+<h4 class="font-manrope font-bold text-lg text-on-surface">GreenHorizon Energy</h4>
+<p class="text-sm text-on-surface-variant font-medium">Sustainability Engineer</p>
+</div>
+</div>
+<div class="col-span-2 text-sm font-semibold text-slate-600 mb-2 md:mb-0">Oct 29, 2023</div>
+<div class="col-span-3 pr-8 mb-4 md:mb-0">
+<div class="flex justify-between text-[10px] font-bold text-slate-400 mb-2 uppercase">
+<span>Stage 1 of 5</span>
+<span>20%</span>
+</div>
+<div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-[20%]"></div>
+</div>
+</div>
+<div class="col-span-2 mb-4 md:mb-0">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold">
+                            Applied
+                        </span>
+</div>
+<div class="col-span-1 text-right">
+<button class="text-primary font-bold text-sm hover:underline decoration-2 underline-offset-4">View Details</button>
+</div>
+</div>
+</div>
+<!-- Pagination/Footer -->
+<div class="p-6 flex items-center justify-between">
+<p class="text-xs font-medium text-slate-500">Showing 5 of 24 applications</p>
+<div class="flex gap-2">
+<button class="w-10 h-10 flex items-center justify-center border border-outline-variant/30 rounded-lg text-slate-400 cursor-not-allowed">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-lg shadow-sm font-bold text-sm">1</button>
+<button class="w-10 h-10 flex items-center justify-center hover:bg-white rounded-lg text-slate-600 font-bold text-sm transition-colors">2</button>
+<button class="w-10 h-10 flex items-center justify-center hover:bg-white rounded-lg text-slate-600 font-bold text-sm transition-colors">3</button>
+<button class="w-10 h-10 flex items-center justify-center border border-outline-variant/30 rounded-lg text-slate-600 hover:bg-white transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Recommended Jobs (Asymmetric Component) -->
+<section class="mt-20">
+<div class="flex items-center justify-between mb-10">
+<h3 class="font-manrope text-3xl font-extrabold tracking-tight">Handpicked for You</h3>
+<a class="text-primary font-bold flex items-center gap-1 hover:gap-2 transition-all" href="#">Explore all jobs <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+<!-- Featured Job Card -->
+<div class="relative pt-6">
+<div class="absolute top-0 left-6 w-16 h-16 bg-white shadow-xl rounded-2xl p-3 z-10">
+<img alt="Stripe Logo" class="w-full h-full object-contain" data-alt="minimalist logo icon for a financial infrastructure company with clean simple typography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnP_eytI5uRcJQ4y0CgwWevYXWunpdXUD4xs9HT6Yx4M0JOSY7khA-qKjWMSdU6EtmXqKH7euNdhPCusc_DgHGlN6CxruNVNyGe0G5sLdHIHtTekvmLvk_fs84uQ9B3c8hbDwpafl0oqwCY0WayCd3uWlsyJJitrwkWm1sH7pfZe1_IXQikFjkWmA-_sW2dD2GcgpTls0ILbyPjLRAuC12eTRe7ji6SC6XW8s29u_OMYHmDZHeWRCyvd2FzeqvMTjI1Iu_Tc6iaKzf"/>
+</div>
+<div class="bg-surface-container-lowest rounded-3xl p-8 pt-14 shadow-sm group hover:shadow-xl transition-all duration-500">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-manrope font-bold text-xl mb-1">Stripe</h4>
+<p class="text-on-surface-variant font-medium">Software Engineering Intern</p>
+</div>
+<span class="px-3 py-1 bg-primary/5 text-primary text-[10px] font-extrabold rounded-full border border-primary/10">NEW</span>
+</div>
+<p class="text-sm text-slate-500 mb-8 line-clamp-2">Join our Dublin-based team to build the future of global commerce infrastructure...</p>
+<div class="flex items-center justify-between">
+<div class="text-xs font-bold text-slate-400 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">location_on</span> Dublin, IE
+                            </div>
+<button class="px-5 py-2 bg-surface-container-high rounded-xl text-xs font-bold group-hover:bg-primary group-hover:text-white transition-colors">Quick Apply</button>
+</div>
+</div>
+</div>
+<!-- Featured Job Card 2 -->
+<div class="relative pt-6">
+<div class="absolute top-0 left-6 w-16 h-16 bg-white shadow-xl rounded-2xl p-3 z-10">
+<img alt="Airbnb Logo" class="w-full h-full object-contain" data-alt="distinctive circular logo with a soft coral color palette representing hospitality and travel" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJjZrICICWirJP7tUIvg0aSSWSISPWgDf-NkmyJz_mFDnWShr38AgBgBclTpEYWPRDsLqPNFxTCTlfnllL7q80duXvSLNzxDF_eoRqkkF8XXhqxzNCLtqKavnhBNu3dl1RcCwTTsE9HaRaguWVddqKSRYSiE03FuWxu5L-SOV0aapP3zPyBRB31-Nx_yZldmxRrCH_Vg82ALWmr-xIkglIhiaZonLaAm0K-PXqtQC8LVzpYPAROWcJhSX1ZkprOUT1FvkMV0F4e2EG"/>
+</div>
+<div class="bg-surface-container-lowest rounded-3xl p-8 pt-14 shadow-sm group hover:shadow-xl transition-all duration-500">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-manrope font-bold text-xl mb-1">Airbnb</h4>
+<p class="text-on-surface-variant font-medium">Product Design Resident</p>
+</div>
+<span class="px-3 py-1 bg-tertiary/5 text-tertiary text-[10px] font-extrabold rounded-full border border-tertiary/10">POPULAR</span>
+</div>
+<p class="text-sm text-slate-500 mb-8 line-clamp-2">Help us define the next generation of host and guest experiences across the globe...</p>
+<div class="flex items-center justify-between">
+<div class="text-xs font-bold text-slate-400 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">work</span> Remote
+                            </div>
+<button class="px-5 py-2 bg-surface-container-high rounded-xl text-xs font-bold group-hover:bg-primary group-hover:text-white transition-colors">Quick Apply</button>
+</div>
+</div>
+</div>
+<!-- Empty State/Banner card -->
+<div class="bg-primary overflow-hidden rounded-3xl relative p-8 flex flex-col justify-end min-h-[250px] shadow-xl">
+<img alt="Career growth" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-30" data-alt="diverse group of ambitious young professionals collaborating around a modern laptop in a bright airy studio space" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUu69BDwYiMTAU2K7HpaWAuxkagWRBTJq_hcC1wblNr7NO4WTkkEZI1fc0L5Us-pLzOB9QEFnh24Rgqefvle8VEAUL31RR6bbvrql6suJ4yYDLMN21t5RS7GhuwTw0wgmH9LinNEZxB634FIL0MvJVo6Lz7g6UCFeCkVScL5wAS7QlKc5gyFzW8FLpZN4pK7Jhdakm7ldFPJwCp7aoVK6QvhNA3u57Hps2JtsG-OccYUR1FSyv_S8-f-NiBb683QUSzYtibw2otMuZ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary via-transparent to-transparent"></div>
+<div class="relative z-10">
+<h4 class="text-white font-manrope font-extrabold text-2xl mb-2">Resume Score: 88/100</h4>
+<p class="text-blue-100 text-sm mb-6">Your profile is trending! Complete your portfolio to reach 95% and get featured.</p>
+<button class="w-full py-3 bg-white text-primary font-bold rounded-xl shadow-lg transition-transform hover:-translate-y-1">Improve My Score</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Mobile Bottom Navigation -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-xl border-t border-slate-100 px-6 py-3 flex justify-between items-center z-50">
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">work</span>
+<span class="text-[10px] font-bold">Jobs</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-blue-700">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">assignment_turned_in</span>
+<span class="text-[10px] font-bold">Apply</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold">Profile</span>
+</button>
+</nav>
+</body></html>

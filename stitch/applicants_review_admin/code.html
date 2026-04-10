@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Applicants Review | TNP Connect</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#0053db",
+                    "on-error-container": "#93000a",
+                    "surface-container": "#eceef0",
+                    "outline": "#737686",
+                    "outline-variant": "#c3c6d7",
+                    "secondary-fixed-dim": "#b9c7df",
+                    "on-tertiary-container": "#ffede6",
+                    "tertiary": "#943700",
+                    "on-surface-variant": "#434655",
+                    "on-primary-fixed": "#00174b",
+                    "tertiary-fixed": "#ffdbcd",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "surface-container-highest": "#e0e3e5",
+                    "secondary-container": "#d5e3fc",
+                    "inverse-surface": "#2d3133",
+                    "background": "#f7f9fb",
+                    "on-tertiary-fixed": "#360f00",
+                    "on-background": "#191c1e",
+                    "inverse-on-surface": "#eff1f3",
+                    "primary-fixed": "#dbe1ff",
+                    "tertiary-container": "#bc4800",
+                    "surface": "#f7f9fb",
+                    "primary": "#004ac6",
+                    "secondary-fixed": "#d5e3fc",
+                    "inverse-primary": "#b4c5ff",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#eeefff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed": "#0d1c2e",
+                    "on-secondary-container": "#57657a",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "primary-container": "#2563eb",
+                    "on-surface": "#191c1e",
+                    "error": "#ba1a1a",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed-variant": "#3a485b",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "surface-container-high": "#e6e8ea",
+                    "secondary": "#515f74",
+                    "surface-dim": "#d8dadc",
+                    "on-primary": "#ffffff",
+                    "surface-variant": "#e0e3e5",
+                    "surface-bright": "#f7f9fb",
+                    "surface-container-low": "#f2f4f6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- SideNavBar (Authority: JSON) -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-slate-50 dark:bg-slate-950 flex flex-col p-4 gap-2 z-40">
+<div class="mb-8 px-2 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
+<span class="material-symbols-outlined">stars</span>
+</div>
+<div>
+<h2 class="font-manrope font-extrabold text-blue-800 dark:text-blue-400 text-lg leading-tight">TNP Portal</h2>
+<p class="text-xs text-slate-500 font-medium">Career-defining Gallery</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 hover:translate-x-1 transition-transform font-inter text-sm font-medium" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 rounded-lg shadow-sm font-semibold font-inter text-sm hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">work</span> Job Board
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 hover:translate-x-1 transition-transform font-inter text-sm font-medium" href="#">
+<span class="material-symbols-outlined">assignment_turned_in</span> My Applications
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 hover:translate-x-1 transition-transform font-inter text-sm font-medium" href="#">
+<span class="material-symbols-outlined">stars</span> Placements
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 hover:translate-x-1 transition-transform font-inter text-sm font-medium" href="#">
+<span class="material-symbols-outlined">event_available</span> Schedule
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 hover:translate-x-1 transition-transform font-inter text-sm font-medium" href="#">
+<span class="material-symbols-outlined">insert_chart</span> Analytics
+            </a>
+</nav>
+<div class="mt-auto space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-transform font-inter text-sm font-medium" href="#">
+<span class="material-symbols-outlined">help_outline</span> Support
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-transform font-inter text-sm font-medium" href="#">
+<span class="material-symbols-outlined">logout</span> Sign Out
+            </a>
+</div>
+</aside>
+<!-- TopNavBar (Authority: JSON) -->
+<header class="fixed top-0 right-0 left-64 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center px-8 py-4 w-full">
+<div class="flex items-center gap-8">
+<h1 class="text-2xl font-black tracking-tight text-blue-700 dark:text-blue-500 font-manrope">TNP Connect</h1>
+<nav class="hidden md:flex gap-6">
+<a class="text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors font-inter text-sm" href="#">Explore Jobs</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors font-inter text-sm" href="#">Companies</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors font-inter text-sm" href="#">Resources</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group">
+<span class="material-symbols-outlined text-slate-600 hover:text-primary cursor-pointer transition-colors">notifications</span>
+<span class="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full"></span>
+</div>
+<span class="material-symbols-outlined text-slate-600 hover:text-primary cursor-pointer transition-colors">settings</span>
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden border-2 border-white shadow-sm">
+<img alt="User profile avatar with settings and logout dropdown" class="w-full h-full object-cover" data-alt="close-up portrait of a professional male recruitment officer in a modern workspace with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXz5bgwtrA59flbgbykjXd_sEd6mnIPNt13XYP0Ks_hLX3e4xwoynBLU_MVU4meZx0vj_Tew1xlo9tGZDb0ybVbRHAhFBMCEhXXYDl2KE6RT7NJpqifnpy6O8LwRJ92HwTcN1YUj_7hh4QFEx99NKm-2kSOwq2RNfVFBumyou6zw8SCmUyj-TJH3CQ5yR1xxhQf4jR6wDATVdYQ8ZXEEJp-JhMZ29Otow-JVRN-eYnAlZUoiSoc6Lw04-l8PDc1ZyP3WhcUWf0m9wp"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pl-64 pt-20 min-h-screen">
+<div class="p-8 max-w-7xl mx-auto space-y-10">
+<!-- Hero Header Section: Editorial Style -->
+<section class="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-outline-variant/15 pb-12">
+<div class="space-y-2">
+<nav class="flex items-center gap-2 text-sm text-secondary font-medium mb-4">
+<span>Job Board</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-on-surface">Applicants Review</span>
+</nav>
+<h2 class="text-4xl md:text-5xl font-extrabold tracking-tight text-on-surface leading-tight">
+                        Software Engineer Intern <br/>
+<span class="text-primary-container bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-container">Google India • Applications</span>
+</h2>
+<p class="text-secondary max-w-2xl text-lg font-body mt-4">Reviewing 124 students for the summer 2024 placement cycle. Shortlist candidates based on CGPA and resume snapshot.</p>
+</div>
+<div class="flex gap-4">
+<button class="bg-surface-container-high text-on-surface px-6 py-3 rounded-xl font-semibold flex items-center gap-2 hover:bg-surface-container-highest transition-all duration-300">
+<span class="material-symbols-outlined text-xl">file_download</span>
+                        Export to Excel
+                    </button>
+<button class="bg-gradient-to-br from-primary to-primary-container text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-primary/10 flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-xl">share</span>
+                        Share Report
+                    </button>
+</div>
+</section>
+<!-- Stats & Filters Bar -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="bg-surface-container-low p-6 rounded-2xl flex flex-col gap-1">
+<span class="text-sm font-medium text-secondary">Total Applications</span>
+<span class="text-3xl font-extrabold text-on-surface">124</span>
+</div>
+<div class="bg-surface-container-low p-6 rounded-2xl flex flex-col gap-1 border-l-4 border-primary">
+<span class="text-sm font-medium text-secondary">Awaiting Review</span>
+<span class="text-3xl font-extrabold text-primary">82</span>
+</div>
+<div class="bg-surface-container-low p-6 rounded-2xl flex flex-col gap-1">
+<span class="text-sm font-medium text-secondary">Shortlisted</span>
+<span class="text-3xl font-extrabold text-on-surface">31</span>
+</div>
+<div class="bg-surface-container-low p-6 rounded-2xl flex flex-col gap-1">
+<span class="text-sm font-medium text-secondary">Rejection Rate</span>
+<span class="text-3xl font-extrabold text-on-surface">12%</span>
+</div>
+</div>
+<!-- Table Container: Glassmorphism/Bento Style -->
+<div class="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm shadow-primary/5">
+<!-- Filters UI -->
+<div class="p-6 border-b border-outline-variant/10 flex flex-wrap gap-4 items-center justify-between">
+<div class="flex items-center bg-surface-container-low px-4 py-2.5 rounded-xl w-full max-w-md group focus-within:bg-white focus-within:ring-2 ring-primary transition-all">
+<span class="material-symbols-outlined text-secondary mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full text-sm placeholder:text-outline" placeholder="Search student name or roll number..." type="text"/>
+</div>
+<div class="flex gap-3">
+<select class="bg-surface-container-low border-none rounded-xl text-sm font-medium py-2.5 pl-4 pr-10 focus:ring-2 ring-primary">
+<option>All Branches</option>
+<option>Computer Science</option>
+<option>Information Tech</option>
+<option>Electronics</option>
+</select>
+<select class="bg-surface-container-low border-none rounded-xl text-sm font-medium py-2.5 pl-4 pr-10 focus:ring-2 ring-primary">
+<option>Status: All</option>
+<option>Applied</option>
+<option>Shortlisted</option>
+<option>Rejected</option>
+</select>
+<button class="w-11 h-11 bg-surface-container-low text-on-surface rounded-xl flex items-center justify-center hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Data Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-6 py-4 text-xs font-bold text-secondary uppercase tracking-wider">Student Name</th>
+<th class="px-6 py-4 text-xs font-bold text-secondary uppercase tracking-wider">Roll No</th>
+<th class="px-6 py-4 text-xs font-bold text-secondary uppercase tracking-wider">Branch</th>
+<th class="px-6 py-4 text-xs font-bold text-secondary uppercase tracking-wider">CGPA</th>
+<th class="px-6 py-4 text-xs font-bold text-secondary uppercase tracking-wider">Date</th>
+<th class="px-6 py-4 text-xs font-bold text-secondary uppercase tracking-wider">Status</th>
+<th class="px-6 py-4 text-xs font-bold text-secondary uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5">
+<!-- Student Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-bold text-sm">AS</div>
+<div>
+<div class="font-bold text-on-surface">Arjun Sharma</div>
+<div class="text-xs text-secondary">arjun.sharma@edu.ac.in</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface">2020CSE042</td>
+<td class="px-6 py-5 text-sm text-secondary">Computer Science</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-tertiary/10 text-tertiary">9.24</span>
+</td>
+<td class="px-6 py-5 text-sm text-secondary">12 Oct, 2023</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">Applied</span>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-secondary hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Download Resume">
+<span class="material-symbols-outlined text-xl">download</span>
+</button>
+<button class="p-2 text-secondary hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="View Snapshot">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+<button class="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary-container transition-colors">
+                                            Update Status
+                                        </button>
+</div>
+</td>
+</tr>
+<!-- Student Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center font-bold text-sm">PV</div>
+<div>
+<div class="font-bold text-on-surface">Priya Verma</div>
+<div class="text-xs text-secondary">p.verma@edu.ac.in</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface">2020IT089</td>
+<td class="px-6 py-5 text-sm text-secondary">Information Tech</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-tertiary/10 text-tertiary">8.85</span>
+</td>
+<td class="px-6 py-5 text-sm text-secondary">13 Oct, 2023</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">Shortlisted</span>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-secondary hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-xl">download</span>
+</button>
+<button class="p-2 text-secondary hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+<button class="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary-container transition-colors">
+                                            Update Status
+                                        </button>
+</div>
+</td>
+</tr>
+<!-- Student Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-bold text-sm">RK</div>
+<div>
+<div class="font-bold text-on-surface">Rohan Kapoor</div>
+<div class="text-xs text-secondary">rkapoor@edu.ac.in</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface">2020CSE011</td>
+<td class="px-6 py-5 text-sm text-secondary">Computer Science</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-tertiary/10 text-tertiary">9.50</span>
+</td>
+<td class="px-6 py-5 text-sm text-secondary">13 Oct, 2023</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">Applied</span>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-secondary hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-xl">download</span>
+</button>
+<button class="p-2 text-secondary hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+<button class="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary-container transition-colors">
+                                            Update Status
+                                        </button>
+</div>
+</td>
+</tr>
+<!-- Student Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-error/10 text-error flex items-center justify-center font-bold text-sm">SL</div>
+<div>
+<div class="font-bold text-on-surface">Sneha Lamba</div>
+<div class="text-xs text-secondary">sneha.l@edu.ac.in</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface">2020ECE102</td>
+<td class="px-6 py-5 text-sm text-secondary">Electronics</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-tertiary/10 text-tertiary">7.80</span>
+</td>
+<td class="px-6 py-5 text-sm text-secondary">14 Oct, 2023</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">Rejected</span>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-secondary hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-xl">download</span>
+</button>
+<button class="p-2 text-secondary hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+<button class="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary-container transition-colors">
+                                            Update Status
+                                        </button>
+</div>
+</td>
+</tr>
+<!-- Student Row 5 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-bold text-sm">IM</div>
+<div>
+<div class="font-bold text-on-surface">Ishaan Mehra</div>
+<div class="text-xs text-secondary">imehra@edu.ac.in</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface">2020CSE055</td>
+<td class="px-6 py-5 text-sm text-secondary">Computer Science</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-tertiary/10 text-tertiary">9.10</span>
+</td>
+<td class="px-6 py-5 text-sm text-secondary">14 Oct, 2023</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">Applied</span>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-secondary hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-xl">download</span>
+</button>
+<button class="p-2 text-secondary hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+<button class="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary-container transition-colors">
+                                            Update Status
+                                        </button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Content -->
+<div class="p-6 bg-surface-container-low/30 border-t border-outline-variant/10 flex items-center justify-between">
+<span class="text-sm text-secondary font-medium">Showing 1 to 5 of 124 applicants</span>
+<div class="flex gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-white border border-outline-variant/20 hover:border-primary text-secondary transition-all">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-white font-bold">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-white border border-outline-variant/20 hover:border-primary text-secondary font-medium transition-all">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-white border border-outline-variant/20 hover:border-primary text-secondary font-medium transition-all">3</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-white border border-outline-variant/20 hover:border-primary text-secondary transition-all">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Bento Featured Profiles (Asymmetric Layout) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12">
+<div class="md:col-span-2 space-y-6">
+<h3 class="text-2xl font-bold tracking-tight">Top Recommended Candidates</h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<div class="bg-surface-container-lowest p-6 rounded-3xl border-l-4 border-tertiary shadow-sm group hover:scale-[1.02] transition-all">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 rounded-2xl bg-tertiary/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">Elite Pick</span>
+</div>
+<h4 class="font-bold text-xl text-on-surface">Rahul Sharma</h4>
+<p class="text-sm text-secondary mb-4">9.8 CGPA • ML Specialist</p>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-2 py-1 bg-surface-container-low rounded text-[10px] font-bold text-secondary">PYTHON</span>
+<span class="px-2 py-1 bg-surface-container-low rounded text-[10px] font-bold text-secondary">TENSORFLOW</span>
+<span class="px-2 py-1 bg-surface-container-low rounded text-[10px] font-bold text-secondary">REACT</span>
+</div>
+<button class="w-full py-3 bg-primary/5 hover:bg-primary hover:text-white text-primary font-bold rounded-xl transition-all">View Full Profile</button>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-3xl border-l-4 border-primary shadow-sm group hover:scale-[1.02] transition-all">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+</div>
+<span class="bg-primary-fixed text-on-primary-fixed px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">Pre-Vetted</span>
+</div>
+<h4 class="font-bold text-xl text-on-surface">Anjali Gupta</h4>
+<p class="text-sm text-secondary mb-4">9.6 CGPA • Fullstack</p>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-2 py-1 bg-surface-container-low rounded text-[10px] font-bold text-secondary">NODE.JS</span>
+<span class="px-2 py-1 bg-surface-container-low rounded text-[10px] font-bold text-secondary">AWS</span>
+<span class="px-2 py-1 bg-surface-container-low rounded text-[10px] font-bold text-secondary">NEXT.JS</span>
+</div>
+<button class="w-full py-3 bg-primary/5 hover:bg-primary hover:text-white text-primary font-bold rounded-xl transition-all">View Full Profile</button>
+</div>
+</div>
+</div>
+<div class="bg-gradient-to-br from-primary to-primary-container rounded-3xl p-8 text-white flex flex-col justify-between overflow-hidden relative">
+<div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+<div>
+<h3 class="text-2xl font-extrabold mb-4 leading-tight">Batch <br/>Performance Insight</h3>
+<p class="text-primary-container text-on-primary-container text-sm leading-relaxed mb-8">This job has attracted 15% higher CGPA average than the previous Software Intern post. Competition is high in the 9.0+ bracket.</p>
+<div class="flex items-center gap-4">
+<div class="flex -space-x-3">
+<img alt="Student" class="w-10 h-10 rounded-full border-2 border-primary" data-alt="portrait of a young indian male student smiling in a casual university setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9v5s-OBimGINbvH_M0l0wGV7kDxVjfJuwTKUJqbSVhxnS0oVJMqPcYLwZDSMYJ2LcqKYezgJ4X_f1P_ch5iWmLBeLfx0vla89016OV1VjRs06WWgkrwW6iWns99oW83p-d5ndcFbiM0USbCMiXTtSxyxGtmSoK7l7U6yWGYQisu_HxX6kc2DWFs7WR9UrSSyd0fsTRzJs4KrQa-4xrXRLIDNQRFNipxLfHY7ospjWY0zPsA6gogMcxMwSoOjcfuLYGqP_VlcdpnkH"/>
+<img alt="Student" class="w-10 h-10 rounded-full border-2 border-primary" data-alt="portrait of a confident young professional woman with a bright smile outdoors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTkx90bfk1b2C72cwWCZAEEHtOsif3C9l5jw8fewmN35t6KkVGi5cQ5kqFM5PqTArlLBUuB7fRhOI_qQkXz6QrVb90ah4yBDoxffG_rTWZar4dGL3IH2hIcp7ZK7Nld56-dhoOBPvphJEtAdv8PFVIg2pd7YSszAbqcTODWquCKg7Zo4n04PINZQCeuHu33OnMTbR6jpSMwYFRdhm98NWqFFDPZbrA5sDXcksWnKB1JtI6fC-Sa9Sh5VwKPHU4G8OKjPHCFFnuSNoq"/>
+<img alt="Student" class="w-10 h-10 rounded-full border-2 border-primary" data-alt="close-up of a young woman with a focused expression in a library environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaNnH9ebIoOAuHgTuRUlrWXcOk3e_qFtzal8636HVCtwDNr0LWf26LG88AgLqdRyVwHp1N25bTj2bTMeujCg3VidLsEVnW7yS2UTA6OQF1IEhQa1xeFrKpOQU3ZQYKwz6T5UaoeaIOb9FjIOSPhOrIR8RY0m5ZGUjRb5XVx2ogQKBxUxT10imZejfPQpwh9mpoUJylkwSjByQWGO8XN6rOSWZr9QGNr2YQyf5Qs6fGsO8nhed71fS8AColpDamhm_8tblAURkpNnGn"/>
+</div>
+<span class="text-xs font-bold">+121 more</span>
+</div>
+</div>
+<button class="w-full mt-10 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-2xl font-bold transition-all flex items-center justify-center gap-2">
+                        View Analytics
+                        <span class="material-symbols-outlined">trending_up</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB (Hidden as per requirement for Review screens) -->
+</body></html>

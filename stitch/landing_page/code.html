@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TNP Connect | Bridging Ambition and Opportunity</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#0053db",
+                    "on-error-container": "#93000a",
+                    "surface-container": "#eceef0",
+                    "outline": "#737686",
+                    "outline-variant": "#c3c6d7",
+                    "secondary-fixed-dim": "#b9c7df",
+                    "on-tertiary-container": "#ffede6",
+                    "tertiary": "#943700",
+                    "on-surface-variant": "#434655",
+                    "on-primary-fixed": "#00174b",
+                    "tertiary-fixed": "#ffdbcd",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "surface-container-highest": "#e0e3e5",
+                    "secondary-container": "#d5e3fc",
+                    "inverse-surface": "#2d3133",
+                    "background": "#f7f9fb",
+                    "on-tertiary-fixed": "#360f00",
+                    "on-background": "#191c1e",
+                    "inverse-on-surface": "#eff1f3",
+                    "primary-fixed": "#dbe1ff",
+                    "tertiary-container": "#bc4800",
+                    "surface": "#f7f9fb",
+                    "primary": "#004ac6",
+                    "secondary-fixed": "#d5e3fc",
+                    "inverse-primary": "#b4c5ff",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#eeefff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed": "#0d1c2e",
+                    "on-secondary-container": "#57657a",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "primary-container": "#2563eb",
+                    "on-surface": "#191c1e",
+                    "error": "#ba1a1a",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed-variant": "#3a485b",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "surface-container-high": "#e6e8ea",
+                    "secondary": "#515f74",
+                    "surface-dim": "#d8dadc",
+                    "on-primary": "#ffffff",
+                    "surface-variant": "#e0e3e5",
+                    "surface-bright": "#f7f9fb",
+                    "surface-container-low": "#f2f4f6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .signature-gradient {
+            background: linear-gradient(135deg, #004ac6 0%, #2563eb 100%);
+        }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+        }
+        .asymmetric-clip {
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black tracking-tight text-blue-700 dark:text-blue-500 font-headline">TNP Connect</span>
+<div class="hidden md:flex gap-6">
+<a class="text-blue-700 dark:text-blue-400 font-bold border-b-2 border-blue-700 dark:border-blue-400 pb-1" href="#">Explore Jobs</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors" href="#">Companies</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors" href="#">Resources</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-5 py-2 text-on-surface font-semibold hover:bg-slate-50 transition-all">Login</button>
+<button class="px-6 py-2 signature-gradient text-white rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">Join Now</button>
+</div>
+</div>
+</nav>
+<!-- Hero Section -->
+<section class="relative pt-32 pb-20 overflow-hidden bg-surface">
+<div class="max-w-7xl mx-auto px-6 lg:flex items-center gap-12">
+<div class="lg:w-1/2 mb-12 lg:mb-0">
+<span class="inline-block py-1 px-4 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold tracking-widest uppercase mb-6">NEXT-GEN PLACEMENT PORTAL</span>
+<h1 class="font-headline text-5xl lg:text-7xl font-extrabold text-on-surface leading-[1.1] mb-8 tracking-tight">
+                    Bridging the Gap Between <span class="text-primary italic">Ambition</span> and <span class="text-primary">Opportunity.</span>
+</h1>
+<p class="text-lg text-on-surface-variant max-w-xl mb-10 leading-relaxed">
+                    A curated career-defining gallery for the brightest minds. Seamlessly connect with top recruiters through our intelligent, data-driven ecosystem.
+                </p>
+<div class="flex flex-col sm:flex-row gap-4">
+<button class="px-8 py-4 signature-gradient text-white rounded-xl font-bold text-lg shadow-xl shadow-primary/20">Get Started Today</button>
+<button class="px-8 py-4 bg-surface-container-highest text-on-surface rounded-xl font-bold text-lg hover:bg-surface-container-high transition-colors">View Opportunities</button>
+</div>
+</div>
+<div class="lg:w-1/2 relative">
+<div class="relative z-10 rounded-2xl overflow-hidden shadow-2xl">
+<img class="w-full h-[500px] object-cover" data-alt="Professional office space with diverse young adults collaborating on laptops in a bright, modern architectural setting with glass walls" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4yEXrit7aKQrKAAgGZ91nRq8OIBYsSjxnzuskBmL5oxFMDItcEBTGaPE8BPbnCnAbz60-CZLrzY5PAwH5oNxuNHglZAXvjbka4IDqjR3hxIL0LQwqBPasfBop1XNV9JWFqcU03QThg0RemzwZx1CbpvR7m3TY83bOh7I8ZfEqgVvhPF3YFSZjC3ZPfskdIFZfK2lKyAe6D-BZ1iarrEzLKXPwLaIs1TfO3ZpBBgH2dmzhWV72u5h6s73XAA6SC735EPu4grahYvPX"/>
+</div>
+<!-- Decorative element -->
+<div class="absolute -top-6 -right-6 w-48 h-48 signature-gradient opacity-10 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-10 -left-10 w-64 h-64 bg-tertiary opacity-10 rounded-full blur-3xl"></div>
+</div>
+</div>
+</section>
+<!-- Bento Grid Features Section -->
+<section class="py-24 bg-surface-container-low">
+<div class="max-w-7xl mx-auto px-6">
+<div class="mb-16 text-center max-w-2xl mx-auto">
+<h2 class="font-headline text-4xl font-bold mb-4">Precision Engineering for Careers</h2>
+<p class="text-on-surface-variant">We've replaced manual spreadsheets with architectural precision and high-fidelity data integrity.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Feature Card: Smart Matching -->
+<div class="md:col-span-2 group relative bg-surface-container-lowest p-8 rounded-xl overflow-hidden transition-all hover:bg-white hover:shadow-xl hover:shadow-primary/5">
+<div class="flex flex-col h-full">
+<span class="material-symbols-outlined text-4xl text-primary mb-6">filter_alt</span>
+<h3 class="font-headline text-2xl font-bold mb-3">Smart Job Matching</h3>
+<p class="text-on-surface-variant max-w-md mb-8">Intelligent filters that respect your achievements. Set CGPA and branch-specific eligibility thresholds to find the perfect alignment for your skills.</p>
+<div class="mt-auto flex gap-3">
+<span class="px-3 py-1 bg-surface-container rounded-full text-xs font-semibold">CGPA Filters</span>
+<span class="px-3 py-1 bg-surface-container rounded-full text-xs font-semibold">Branch Affinity</span>
+<span class="px-3 py-1 bg-surface-container rounded-full text-xs font-semibold">Skill Mapping</span>
+</div>
+</div>
+</div>
+<!-- Feature Card: Document Vault -->
+<div class="bg-surface-container-lowest p-8 rounded-xl transition-all hover:bg-white hover:shadow-xl hover:shadow-primary/5">
+<span class="material-symbols-outlined text-4xl text-tertiary mb-6">enhanced_encryption</span>
+<h3 class="font-headline text-2xl font-bold mb-3">Secure Vault</h3>
+<p class="text-on-surface-variant mb-6">Private S3-backed storage for your resumes, portfolios, and marksheets. Your documents, encrypted and ready.</p>
+<div class="flex items-center gap-2 text-primary font-bold text-sm">
+                        Learn about security <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</div>
+</div>
+<!-- Feature Card: Real-time Tracking -->
+<div class="bg-surface-container-lowest p-8 rounded-xl transition-all hover:bg-white hover:shadow-xl hover:shadow-primary/5">
+<span class="material-symbols-outlined text-4xl text-primary mb-6">timeline</span>
+<h3 class="font-headline text-2xl font-bold mb-3">Real-time Tracking</h3>
+<p class="text-on-surface-variant">From 'Applied' to 'Placed', monitor every stage of your journey with live notifications and status updates.</p>
+</div>
+<!-- Feature Card: Data Integrity -->
+<div class="md:col-span-2 bg-surface-container-lowest p-8 rounded-xl overflow-hidden transition-all hover:bg-white hover:shadow-xl hover:shadow-primary/5 relative">
+<div class="flex flex-col md:flex-row items-center gap-8">
+<div class="flex-1">
+<span class="material-symbols-outlined text-4xl text-blue-800 mb-6">verified_user</span>
+<h3 class="font-headline text-2xl font-bold mb-3">Immutable Data Integrity</h3>
+<p class="text-on-surface-variant">Our application snapshots ensure your data remains untampered. Every profile version and application state is preserved with architectural rigor.</p>
+</div>
+<div class="w-full md:w-64 h-40 bg-surface-container rounded-xl flex items-center justify-center border-dashed border-2 border-outline-variant/30">
+<span class="text-xs font-mono text-outline">HASH: 8f92e...7d12</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Persona Section -->
+<section class="py-24 bg-surface">
+<div class="max-w-7xl mx-auto px-6">
+<div class="grid lg:grid-cols-2 gap-12">
+<!-- For Students -->
+<div class="relative p-1 bg-surface-container rounded-3xl overflow-hidden group">
+<div class="bg-white p-12 rounded-[1.4rem] h-full">
+<h4 class="font-headline text-sm font-bold text-primary tracking-widest uppercase mb-6">FOR STUDENTS</h4>
+<h2 class="font-headline text-4xl font-extrabold mb-6 leading-tight">Your Launchpad to Elite Career Paths.</h2>
+<ul class="space-y-4 mb-10">
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-weight="fill">check_circle</span>
+<span class="text-on-surface-variant">Automated Resume Generation &amp; Storage</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-weight="fill">check_circle</span>
+<span class="text-on-surface-variant">Instant Eligibility Check for Top MNCs</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-weight="fill">check_circle</span>
+<span class="text-on-surface-variant">Mock Interviews &amp; Preparation Hub</span>
+</li>
+</ul>
+<button class="w-full py-4 bg-surface-container-high text-on-surface font-bold rounded-xl hover:bg-primary hover:text-white transition-all">Register as Student</button>
+</div>
+</div>
+<!-- For Recruiters -->
+<div class="relative p-1 signature-gradient rounded-3xl overflow-hidden group">
+<div class="bg-slate-900 p-12 rounded-[1.4rem] h-full text-white">
+<h4 class="font-headline text-sm font-bold text-blue-400 tracking-widest uppercase mb-6">FOR RECRUITERS</h4>
+<h2 class="font-headline text-4xl font-extrabold mb-6 leading-tight">Access the Top 1% of Campus Talent.</h2>
+<ul class="space-y-4 mb-10">
+<li class="flex items-center gap-3 text-slate-300">
+<span class="material-symbols-outlined text-blue-400" data-weight="fill">check_circle</span>
+<span>Seamless Job Posting &amp; Management</span>
+</li>
+<li class="flex items-center gap-3 text-slate-300">
+<span class="material-symbols-outlined text-blue-400" data-weight="fill">check_circle</span>
+<span>Advanced Candidate Analytics &amp; Ranking</span>
+</li>
+<li class="flex items-center gap-3 text-slate-300">
+<span class="material-symbols-outlined text-blue-400" data-weight="fill">check_circle</span>
+<span>Direct Communication Channel with TNP Cell</span>
+</li>
+</ul>
+<button class="w-full py-4 bg-white text-slate-900 font-bold rounded-xl hover:bg-blue-100 transition-all">Partner With Us</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Image-Heavy CTA Section -->
+<section class="py-24 bg-surface overflow-hidden">
+<div class="max-w-7xl mx-auto px-6">
+<div class="relative rounded-3xl overflow-hidden h-[400px]">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="Modern empty boardroom with minimalist white furniture and large floor-to-ceiling windows overlooking a sleek urban skyline" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtgWyhm0FTSpv2zKsxT3dxtD92Hm2uRrgcCFLZ3bOwqUu0VQjR-GnM_Ptd0hatYH8ZkDZTRjsooUtvS5STiWBikjvT2r_Rxf15-FO8ic_Gy-MXJkjQr7d6fS3L8qha6stWFao-YekKst6zl798JcpLbeq4YXHJjUzg7P2crmsprWBjvpBPr1blE-D8LkMaTiywGMtv5d57tcHbTnK-KCzm4c4Y70DiRFChYsv1aM7wlv2dYOhlBGaQInQ6NrmzGml7rgtBfOHA9btN"/>
+<div class="absolute inset-0 bg-primary/40 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6">
+<h2 class="font-headline text-4xl md:text-5xl font-extrabold text-white mb-6">Ready to Define Your Future?</h2>
+<p class="text-white/90 text-lg max-w-xl mb-10">Join thousands of students and hundreds of companies building the future of industry on TNP Connect.</p>
+<div class="flex gap-4">
+<button class="px-10 py-4 bg-white text-primary rounded-xl font-bold text-lg hover:scale-105 transition-all">Get Started</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-surface-container-low pt-20 pb-10 border-t border-outline-variant/10">
+<div class="max-w-7xl mx-auto px-6">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16">
+<div class="col-span-2 md:col-span-1">
+<span class="text-2xl font-black tracking-tight text-blue-700 font-headline mb-6 block">TNP Connect</span>
+<p class="text-on-surface-variant text-sm leading-relaxed">
+                        The definitive platform for campus placements, empowering ambition with modern technology and architectural precision.
+                    </p>
+</div>
+<div>
+<h5 class="font-bold mb-6">Platform</h5>
+<ul class="space-y-4 text-on-surface-variant text-sm">
+<li><a class="hover:text-primary transition-colors" href="#">Job Board</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Analytics</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Documentation</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold mb-6">Company</h5>
+<ul class="space-y-4 text-on-surface-variant text-sm">
+<li><a class="hover:text-primary transition-colors" href="#">About Us</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Contact Support</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold mb-6">Connect</h5>
+<div class="flex gap-4">
+<a class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">public</span>
+</a>
+<a class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">alternate_email</span>
+</a>
+</div>
+</div>
+</div>
+<div class="pt-10 border-t border-outline-variant/10 text-center text-sm text-on-surface-variant">
+                © 2024 TNP Connect Ecosystem. All rights reserved. Designed with Architectural Rigor.
+            </div>
+</div>
+</footer>
+</body></html>
