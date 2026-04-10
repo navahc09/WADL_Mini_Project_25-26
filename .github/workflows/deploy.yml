@@ -126,7 +126,18 @@ jobs:
 
       - name: Upload to S3
         run: |
-          aws s3 sync frontend/dist/ s3://${{ secrets.S3_FRONTEND_BUCKET }}/ \
+          FRONTEND_BUCKET='${{ secrets.S3_FRONTEND_BUCKET }}'
+          FRONTEND_BUCKET="${FRONTEND_BUCKET#http://}"
+          FRONTEND_BUCKET="${FRONTEND_BUCKET#https://}"
+          FRONTEND_BUCKET="${FRONTEND_BUCKET%%/*}"
+
+          if [ -z "$FRONTEND_BUCKET" ]; then
+            echo "S3_FRONTEND_BUCKET secret is empty or invalid"
+            exit 1
+          fi
+
+          echo "Deploying frontend to bucket: $FRONTEND_BUCKET"
+          aws s3 sync frontend/dist/ s3://$FRONTEND_BUCKET/ \
             --delete \
             --region ${{ env.AWS_REGION }}
 
