@@ -5,7 +5,7 @@ import { persist } from "zustand/middleware";
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL ||
   import.meta.env.VITE_API_URL ||
-  "http://localhost:5000/api/v1";
+  "https://d3n0if71dkljcl.cloudfront.net/api/v1";
 
 export const useAuthStore = create(
   persist(
