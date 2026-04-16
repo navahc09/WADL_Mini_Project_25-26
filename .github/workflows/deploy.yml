@@ -91,6 +91,20 @@ jobs:
             echo "── Running migrations"
             npm run migrate
 
+            echo "── Seed database (first deploy only)"
+            USER_COUNT=$(node -e "
+              const pool = require('./src/db/pool');
+              pool.query('SELECT COUNT(*) AS c FROM users')
+                .then(r => { process.stdout.write(String(r.rows[0].c)); pool.end(); })
+                .catch(() => { process.stdout.write('0'); pool.end(); });
+            ")
+            if [ "$USER_COUNT" = "0" ]; then
+              echo "   Empty database — running seed"
+              node src/db/seed.js
+            else
+              echo "   Database already has $USER_COUNT user(s) — skipping seed"
+            fi
+
             echo "── Copying Nginx config"
             sudo cp "$REPO_DIR/nginx/tnp.conf" /etc/nginx/conf.d/tnp.conf
             sudo nginx -t && sudo systemctl reload nginx
