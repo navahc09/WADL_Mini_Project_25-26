@@ -22,7 +22,7 @@ export default function ShellSidebar({
   onLogout,
 }) {
   return (
-    <aside className="hidden h-full w-64 shrink-0 flex-col lg:flex">
+    <aside className="hidden h-full w-60 min-w-0 shrink-0 flex-col lg:flex">
       {/* Brand */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
@@ -38,12 +38,12 @@ export default function ShellSidebar({
         variants={navStagger}
         initial="hidden"
         animate="show"
-        className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto"
+        className="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto overflow-x-hidden"
       >
         {navigation.map((item) => {
           const Icon = item.icon;
           return (
-            <motion.div key={item.to} variants={navItem}>
+            <motion.div key={item.key ?? item.to} variants={navItem}>
               <NavLink
                 to={item.to}
                 end={item.end}
@@ -52,7 +52,7 @@ export default function ShellSidebar({
                     "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200",
                     isActive
                       ? "bg-surface-container-lowest text-primary ambient-shadow"
-                      : "text-on-surface-variant hover:translate-x-0.5 hover:bg-surface-container-high",
+                      : "text-on-surface-variant hover:bg-surface-container-high",
                   )
                 }
               >

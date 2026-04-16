@@ -1,3 +1,4 @@
+const bcrypt = require("bcryptjs");
 const { query, withTransaction } = require("../db");
 const { exportApplicantsToExcel } = require("../services/export.service");
 const {
@@ -7,6 +8,11 @@ const {
   parseNumber,
 } = require("../services/presentation.service");
 const { sendEmail } = require("../services/email.service");
+const {
+  generateAndStoreToken,
+  sendSetupEmail,
+  sendResetEmail,
+} = require("./auth.controller");
 
 function normalizeList(value, splitter = /\r?\n|[.;]+/g) {
   if (Array.isArray(value)) {
@@ -727,4 +733,275 @@ module.exports = {
   closeJob,
   reopenJob,
   deleteJob,
+  // student management
+  createStudent,
+  listStudents,
+  sendStudentSetupLink,
+  sendStudentResetLink,
+  updateStudent,
 };
+
+// ── Student Management ────────────────────────────────────────────────────────
+
+async function createStudent(req, res, next) {
+  try {
+    const {
+      fullName,
+      email,
+      enrollmentNo,
+      phone,
+      branch,
+      graduationYear,
+      cgpa,
+      gender,
+      dateOfBirth,
+      tenthPercent,
+      twelfthPercent,
+      city,
+    } = req.body;
+
+    // Check for duplicate email or enrollment number
+    const dupEmail = await query("SELECT 1 FROM users WHERE LOWER(email) = LOWER($1)", [email]);
+    if (dupEmail.rows[0]) {
+      return res.status(409).json({ error: "A student with this email already exists." });
+    }
+
+    const dupEnroll = await query(
+      "SELECT 1 FROM student_profiles WHERE UPPER(roll_number) = UPPER($1)",
+      [enrollmentNo],
+    );
+    if (dupEnroll.rows[0]) {
+      return res.status(409).json({ error: "A student with this enrollment number already exists." });
+    }
+
+    // Derive branch_code from first letters of each word
+    const branchCode = branch
+      .split(" ")
+      .filter(Boolean)
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase();
+
+    // Create with a sentinel password_hash that can never match any real password.
+    // Student must set their password via the setup link.
+    const sentinelHash = await bcrypt.hash(`__unset__${Date.now()}__`, 10);
+
+    const user = await withTransaction(async (client) => {
+      const userResult = await client.query(
+        `INSERT INTO users (display_name, email, password_hash, role, is_active, email_verified)
+         VALUES ($1, $2, $3, 'student', TRUE, TRUE)
+         RETURNING id, display_name, email, role, is_active, email_verified`,
+        [fullName, email, sentinelHash],
+      );
+
+      await client.query(
+        `INSERT INTO student_profiles (
+           user_id, full_name, phone, city, roll_number, branch, branch_code,
+           graduation_year, cgpa, gender, date_of_birth, tenth_percent,
+           twelfth_percent, skills, preferred_locations, preferred_domains,
+           expected_salary_label, headline, about, profile_complete
+         ) VALUES (
+           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
+           '{}', '{}', '{}', '', '', '', FALSE
+         )`,
+        [
+          userResult.rows[0].id,
+          fullName,
+          phone || null,
+          city || null,
+          enrollmentNo.toUpperCase(),
+          branch,
+          branchCode,
+          Number(graduationYear),
+          Number(cgpa),
+          gender || null,
+          dateOfBirth || null,
+          tenthPercent ? Number(tenthPercent) : null,
+          twelfthPercent ? Number(twelfthPercent) : null,
+        ],
+      );
+
+      return userResult.rows[0];
+    });
+
+    return res.status(201).json({
+      message: "Student account created. Send the setup link to their email.",
+      student: {
+        id: user.id,
+        name: user.display_name,
+        email: user.email,
+        enrollmentNo: enrollmentNo.toUpperCase(),
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function listStudents(req, res, next) {
+  try {
+    const search = req.query.search || "";
+    const page = Math.max(1, parseInt(req.query.page || "1", 10));
+    const limit = 20;
+    const offset = (page - 1) * limit;
+
+    const { rows } = await query(
+      `SELECT u.id, u.display_name AS name, u.email, u.is_active,
+              sp.roll_number AS enrollment_no, sp.branch, sp.graduation_year,
+              sp.cgpa, sp.profile_complete,
+              (u.password_hash IS NOT NULL) AS has_password
+       FROM users u
+       JOIN student_profiles sp ON sp.user_id = u.id
+       WHERE u.role = 'student'
+         AND (
+           $1 = ''
+           OR LOWER(u.display_name) LIKE LOWER('%' || $1 || '%')
+           OR LOWER(sp.roll_number) LIKE LOWER('%' || $1 || '%')
+           OR LOWER(u.email) LIKE LOWER('%' || $1 || '%')
+         )
+       ORDER BY sp.roll_number
+       LIMIT $2 OFFSET $3`,
+      [search, limit, offset],
+    );
+
+    const countResult = await query(
+      `SELECT COUNT(*) FROM users u
+       JOIN student_profiles sp ON sp.user_id = u.id
+       WHERE u.role = 'student'
+         AND (
+           $1 = ''
+           OR LOWER(u.display_name) LIKE LOWER('%' || $1 || '%')
+           OR LOWER(sp.roll_number) LIKE LOWER('%' || $1 || '%')
+           OR LOWER(u.email) LIKE LOWER('%' || $1 || '%')
+         )`,
+      [search],
+    );
+
+    return res.json({
+      students: rows,
+      total: parseInt(countResult.rows[0].count, 10),
+      page,
+      limit,
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function sendStudentSetupLink(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const { rows } = await query(
+      `SELECT u.id, u.display_name AS name, u.email, u.role
+       FROM users u WHERE u.id = $1 AND u.role = 'student'`,
+      [id],
+    );
+
+    if (!rows[0]) {
+      return res.status(404).json({ error: "Student not found." });
+    }
+
+    const { name, email } = rows[0];
+    const token = await generateAndStoreToken(id, "setup");
+    await sendSetupEmail(email, name, token);
+
+    return res.json({ message: `Password setup link sent to ${email}.` });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function sendStudentResetLink(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const { rows } = await query(
+      `SELECT u.id, u.display_name AS name, u.email, u.role
+       FROM users u WHERE u.id = $1 AND u.role = 'student'`,
+      [id],
+    );
+
+    if (!rows[0]) {
+      return res.status(404).json({ error: "Student not found." });
+    }
+
+    const { name, email } = rows[0];
+    const token = await generateAndStoreToken(id, "reset");
+    await sendResetEmail(email, name, token);
+
+    return res.json({ message: `Password reset link sent to ${email}.` });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function updateStudent(req, res, next) {
+  try {
+    const { id } = req.params;
+    const {
+      fullName, email, phone, city, branch, graduationYear, cgpa,
+      gender, dateOfBirth, tenthPercent, twelfthPercent, isActive,
+    } = req.body;
+
+    const { rows } = await query(
+      `SELECT u.id, sp.id AS profile_id FROM users u
+       JOIN student_profiles sp ON sp.user_id = u.id
+       WHERE u.id = $1 AND u.role = 'student'`,
+      [id],
+    );
+
+    if (!rows[0]) {
+      return res.status(404).json({ error: "Student not found." });
+    }
+
+    const branchCode = branch
+      ? branch.split(" ").filter(Boolean).map((w) => w[0]).join("").toUpperCase()
+      : undefined;
+
+    await withTransaction(async (client) => {
+      if (fullName || email || isActive !== undefined) {
+        await client.query(
+          `UPDATE users SET
+             display_name = COALESCE($1, display_name),
+             email = COALESCE($2, email),
+             is_active = COALESCE($3, is_active),
+             updated_at = NOW()
+           WHERE id = $4`,
+          [fullName || null, email || null, isActive ?? null, id],
+        );
+      }
+      await client.query(
+        `UPDATE student_profiles SET
+           full_name = COALESCE($1, full_name),
+           phone = COALESCE($2, phone),
+           city = COALESCE($3, city),
+           branch = COALESCE($4, branch),
+           branch_code = COALESCE($5, branch_code),
+           graduation_year = COALESCE($6, graduation_year),
+           cgpa = COALESCE($7, cgpa),
+           gender = COALESCE($8, gender),
+           date_of_birth = COALESCE($9, date_of_birth),
+           tenth_percent = COALESCE($10, tenth_percent),
+           twelfth_percent = COALESCE($11, twelfth_percent),
+           updated_at = NOW()
+         WHERE user_id = $12`,
+        [
+          fullName || null, phone || null, city || null,
+          branch || null, branchCode || null,
+          graduationYear ? Number(graduationYear) : null,
+          cgpa ? Number(cgpa) : null,
+          gender || null,
+          dateOfBirth || null,
+          tenthPercent ? Number(tenthPercent) : null,
+          twelfthPercent ? Number(twelfthPercent) : null,
+          id,
+        ],
+      );
+    });
+
+    return res.json({ message: "Student details updated." });
+  } catch (error) {
+    return next(error);
+  }
+}

@@ -1,16 +1,21 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, Eye, EyeOff, Lock, Mail, Sparkles } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Hash, Lock, Mail, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import BrandMark from "../../components/BrandMark";
 import Button from "../../components/ui/Button";
 import { useAuth } from "../../hooks/useAuth";
 
-const schema = z.object({
+const studentSchema = z.object({
+  enrollmentNo: z.string().min(3, "Enter your enrollment number (e.g. I2K231262)"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+const adminSchema = z.object({
   email: z.string().email("Enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
@@ -30,15 +35,27 @@ export default function LoginPage() {
   const [role, setRole] = useState("student");
   const [showPassword, setShowPassword] = useState(false);
 
+  const isStudent = role === "student";
+
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(schema) });
+  } = useForm({ resolver: zodResolver(isStudent ? studentSchema : adminSchema) });
+
+  function switchRole(newRole) {
+    setRole(newRole);
+    reset();
+  }
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      const user = await login(values);
+      const payload = isStudent
+        ? { enrollmentNo: values.enrollmentNo.toUpperCase(), password: values.password }
+        : { email: values.email, password: values.password };
+
+      const user = await login(payload);
       toast.success(`${user.role === "admin" ? "Admin" : "Student"} access granted.`);
       navigate(user.role === "admin" ? "/admin" : "/student");
     } catch (error) {
@@ -58,16 +75,13 @@ export default function LoginPage() {
           transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
           className="relative hidden overflow-hidden bg-signature md:flex md:flex-col md:justify-between p-10 lg:p-14"
         >
-          {/* Decorative blobs */}
           <div className="pointer-events-none absolute -top-16 -left-16 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-16 -right-16 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
 
-          {/* Brand */}
           <div className="relative">
             <BrandMark compact inverted />
           </div>
 
-          {/* Hero copy */}
           <div className="relative space-y-6">
             <div className="space-y-4">
               <span className="inline-block rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-white/70">
@@ -82,7 +96,6 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Stats row */}
             <div className="grid grid-cols-3 gap-3">
               {[
                 { value: "77%", label: "Placement rate" },
@@ -97,7 +110,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Snapshot card */}
           <div className="relative rounded-[1.4rem] border border-white/10 bg-white/10 p-5 backdrop-blur-md">
             <div className="flex items-center gap-3">
               <div className="rounded-2xl bg-white/15 p-3">
@@ -121,15 +133,12 @@ export default function LoginPage() {
           transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1], delay: 0.1 }}
           className="flex h-full flex-col overflow-y-auto bg-surface px-6 py-8 md:px-12 lg:px-16"
         >
-          {/* Mobile brand */}
           <div className="mb-8 md:hidden">
             <BrandMark />
           </div>
 
-          {/* Vertically center the form content */}
           <div className="my-auto w-full max-w-md mx-auto space-y-7">
 
-            {/* Heading */}
             <motion.div custom={0} variants={fadeUp} initial="hidden" animate="show" className="space-y-2">
               <span className="section-label">Sign In</span>
               <h2 className="font-headline text-3xl font-extrabold tracking-tight text-on-surface md:text-4xl">
@@ -154,7 +163,7 @@ export default function LoginPage() {
                       ? "bg-surface-container-lowest text-primary shadow-sm"
                       : "text-on-surface-variant hover:text-on-surface"
                   }`}
-                  onClick={() => setRole(option.value)}
+                  onClick={() => switchRole(option.value)}
                 >
                   {option.label}
                 </button>
@@ -163,24 +172,46 @@ export default function LoginPage() {
 
             {/* Form */}
             <motion.form custom={2} variants={fadeUp} initial="hidden" animate="show" className="space-y-4" onSubmit={onSubmit}>
-              {/* Email */}
-              <div className="space-y-1.5">
-                <label className="ml-1 block text-sm font-medium text-on-surface-variant">
-                  University Email
-                </label>
-                <div className="field-shell flex items-center gap-3">
-                  <Mail className="h-4 w-4 shrink-0 text-outline" />
-                  <input
-                    className="w-full bg-transparent outline-none"
-                    placeholder="name@university.edu"
-                    autoComplete="email"
-                    {...register("email")}
-                  />
+
+              {isStudent ? (
+                /* Enrollment number field */
+                <div className="space-y-1.5">
+                  <label className="ml-1 block text-sm font-medium text-on-surface-variant">
+                    Enrollment Number
+                  </label>
+                  <div className="field-shell flex items-center gap-3">
+                    <Hash className="h-4 w-4 shrink-0 text-outline" />
+                    <input
+                      className="w-full bg-transparent outline-none uppercase"
+                      placeholder="e.g. I2K231262"
+                      autoComplete="username"
+                      {...register("enrollmentNo")}
+                    />
+                  </div>
+                  {errors.enrollmentNo && (
+                    <p className="ml-1 text-xs font-medium text-error">{errors.enrollmentNo.message}</p>
+                  )}
                 </div>
-                {errors.email && (
-                  <p className="ml-1 text-xs font-medium text-error">{errors.email.message}</p>
-                )}
-              </div>
+              ) : (
+                /* Admin email field */
+                <div className="space-y-1.5">
+                  <label className="ml-1 block text-sm font-medium text-on-surface-variant">
+                    Admin Email
+                  </label>
+                  <div className="field-shell flex items-center gap-3">
+                    <Mail className="h-4 w-4 shrink-0 text-outline" />
+                    <input
+                      className="w-full bg-transparent outline-none"
+                      placeholder="placement@university.edu"
+                      autoComplete="email"
+                      {...register("email")}
+                    />
+                  </div>
+                  {errors.email && (
+                    <p className="ml-1 text-xs font-medium text-error">{errors.email.message}</p>
+                  )}
+                </div>
+              )}
 
               {/* Password */}
               <div className="space-y-1.5">
@@ -209,30 +240,33 @@ export default function LoginPage() {
                 )}
               </div>
 
-              {/* Submit */}
               <Button className="w-full" size="lg" type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Signing in…" : "Sign in to portal"}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </motion.form>
 
-            {/* Social buttons */}
-            <motion.div custom={3} variants={fadeUp} initial="hidden" animate="show" className="grid grid-cols-2 gap-3">
-              <button className="rounded-2xl border border-outline-variant bg-surface px-4 py-3 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low">
-                Continue with Google
-              </button>
-              <button className="rounded-2xl border border-outline-variant bg-surface px-4 py-3 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low">
-                Continue with Outlook
-              </button>
-            </motion.div>
+            {/* Forgot password notice */}
+            {isStudent && (
+              <motion.div
+                custom={3} variants={fadeUp} initial="hidden" animate="show"
+                className="rounded-2xl border border-outline-variant/40 bg-surface-container-low px-5 py-4"
+              >
+                <p className="text-sm font-semibold text-on-surface">Forgot your password?</p>
+                <p className="mt-1 text-xs leading-5 text-on-surface-variant">
+                  Contact the TnP office — they will send a password reset link to your registered
+                  email address. You cannot reset your password on your own.
+                </p>
+              </motion.div>
+            )}
 
-            {/* Footer link */}
-            <motion.p custom={4} variants={fadeUp} initial="hidden" animate="show" className="text-center text-sm text-on-surface-variant">
-              New student profile?{" "}
-              <Link className="font-bold text-primary hover:underline" to="/register">
-                Start registration
-              </Link>
-            </motion.p>
+            {/* Account note for students */}
+            {isStudent && (
+              <motion.p custom={4} variants={fadeUp} initial="hidden" animate="show" className="text-center text-xs leading-5 text-outline">
+                Your account is created by the TnP office. If you haven't received your setup
+                email, contact the placement cell.
+              </motion.p>
+            )}
           </div>
         </motion.main>
       </div>

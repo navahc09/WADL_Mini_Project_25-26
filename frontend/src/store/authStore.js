@@ -13,6 +13,9 @@ export const useAuthStore = create(
       user: null,
       accessToken: null,
       refreshToken: null,
+
+      // Students: { enrollmentNo, password }
+      // Admins:   { email, password }
       async login(credentials) {
         const { data } = await axios.post(`${API_BASE}/auth/login`, credentials);
         set({
@@ -22,15 +25,7 @@ export const useAuthStore = create(
         });
         return data.user;
       },
-      async registerStudent(payload) {
-        const { data } = await axios.post(`${API_BASE}/auth/register`, payload);
-        set({
-          user: data.user,
-          accessToken: data.accessToken,
-          refreshToken: data.refreshToken,
-        });
-        return data.user;
-      },
+
       loginAs(role = "student", overrides = {}) {
         const base =
           role === "admin"
@@ -52,6 +47,7 @@ export const useAuthStore = create(
           refreshToken: `demo-refresh-${role}`,
         });
       },
+
       logout() {
         const { refreshToken } = get();
         if (refreshToken) {
@@ -59,6 +55,7 @@ export const useAuthStore = create(
         }
         set({ user: null, accessToken: null, refreshToken: null });
       },
+
       setTokens(accessToken, refreshToken) {
         set((state) => ({
           accessToken,

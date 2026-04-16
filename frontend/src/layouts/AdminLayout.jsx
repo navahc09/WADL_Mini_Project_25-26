@@ -1,9 +1,9 @@
 import {
   BarChart3,
   BriefcaseBusiness,
-  ClipboardList,
   LayoutDashboard,
   PlusCircle,
+  Users,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -25,15 +25,15 @@ export default function AdminLayout() {
 
   const navigation = [
     { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
-    { to: "/admin/jobs/new", label: "Post Job", icon: PlusCircle },
+    { to: "/admin/students", label: "Students", icon: Users },
     { to: "/admin/jobs", label: "Manage Jobs", icon: BriefcaseBusiness, end: true },
-    { to: "/admin/jobs", label: "Applicants", icon: ClipboardList },
+    { to: "/admin/jobs/new", label: "Post Job", icon: PlusCircle, end: true },
     { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   ];
 
   return (
     <div className="editorial-shell h-screen overflow-hidden">
-      <div className="mx-auto flex h-full max-w-[1600px] gap-5 px-4 py-4 md:px-6">
+      <div className="mx-auto flex h-full max-w-[1600px] gap-4 px-3 py-3 md:px-5">
         <ShellSidebar
           navigation={navigation}
           cta={
@@ -72,7 +72,6 @@ export default function AdminLayout() {
           </div>
 
           <ShellHeader
-            searchPlaceholder="Search jobs, recruiters, or applicants..."
             user={user}
             actions={
               <Button variant="secondary" size="sm" onClick={() => navigate("/admin/jobs/new")}>
@@ -81,7 +80,7 @@ export default function AdminLayout() {
             }
           />
 
-          <main className="flex-1 overflow-y-auto rounded-[1.2rem]">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden rounded-[1.2rem]">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={location.pathname}
@@ -89,7 +88,7 @@ export default function AdminLayout() {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                className="pb-6"
+                className="px-2 pb-4 pt-2"
               >
                 <Outlet />
               </motion.div>

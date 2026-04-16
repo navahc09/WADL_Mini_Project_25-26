@@ -4,7 +4,6 @@ import toast from "react-hot-toast";
 import { Link, useSearchParams } from "react-router-dom";
 import ApplicationStatusBadge from "../../components/ApplicationStatusBadge";
 import Button from "../../components/ui/Button";
-import SectionHeading from "../../components/ui/SectionHeading";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import { useAdminJobs, useCloseJob, useExportApplicants, useReopenJob } from "../../hooks/useAdmin";
 
@@ -41,20 +40,18 @@ export default function ManageJobsPage() {
 
   if (isLoading) {
     return (
-      <SurfaceCard className="p-8">
-        <h2 className="font-headline text-3xl font-bold">Loading job inventory</h2>
-        <p className="mt-3 text-sm text-on-surface-variant">
-          Fetching published and draft roles from the backend.
-        </p>
+      <SurfaceCard className="p-5">
+        <h2 className="font-headline text-xl font-bold">Loading job inventory…</h2>
+        <p className="mt-1 text-sm text-on-surface-variant">Fetching published and draft roles.</p>
       </SurfaceCard>
     );
   }
 
   if (isError) {
     return (
-      <SurfaceCard className="p-8">
-        <h2 className="font-headline text-3xl font-bold">Inventory unavailable</h2>
-        <p className="mt-3 text-sm text-on-surface-variant">
+      <SurfaceCard className="p-5">
+        <h2 className="font-headline text-xl font-bold">Inventory unavailable</h2>
+        <p className="mt-1 text-sm text-on-surface-variant">
           {error?.response?.data?.error || "We could not load job inventory right now."}
         </p>
       </SurfaceCard>
@@ -62,90 +59,91 @@ export default function ManageJobsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <SectionHeading
-        label="Inventory"
-        title="Manage the placement board"
-        description="Monitor role quality, applicant movement, and deadline pressure across the jobs published by the placement cell."
-        action={
-          <Link to="/admin/jobs/new">
-            <Button>Create new job</Button>
-          </Link>
-        }
-      />
+    <div className="space-y-4">
+      {/* Header row */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Inventory</p>
+          <h2 className="font-headline text-lg font-bold">Manage placement board</h2>
+        </div>
+        <Link to="/admin/jobs/new">
+          <Button size="sm">Create new job</Button>
+        </Link>
+      </div>
 
-      <section className="page-section grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {/* Stats */}
+      <div className="grid grid-cols-4 gap-3">
         {[
           { label: "Open Roles", value: summary.active },
           { label: "Closing Soon", value: summary.closing },
           { label: "Draft Roles", value: summary.draft },
           { label: "Total Applicants", value: summary.applicants },
         ].map((item) => (
-          <SurfaceCard key={item.label} className="panel-hover p-6">
-            <p className="text-sm text-on-surface-variant">{item.label}</p>
-            <p className="mt-3 font-headline text-4xl font-extrabold">{item.value}</p>
+          <SurfaceCard key={item.label} className="panel-hover p-4">
+            <p className="text-xs text-on-surface-variant">{item.label}</p>
+            <p className="mt-1 font-headline text-2xl font-extrabold">{item.value}</p>
           </SurfaceCard>
         ))}
-      </section>
+      </div>
 
-      <SurfaceCard className="page-section p-6">
-        <label className="interactive-strip flex items-center gap-3 rounded-full bg-surface-container-low px-4 py-3">
-          <Search className="h-4 w-4 text-outline" />
+      {/* Search */}
+      <SurfaceCard className="p-3">
+        <label className="flex items-center gap-2 rounded-full bg-surface-container-low px-3 py-2">
+          <Search className="h-3.5 w-3.5 text-outline" />
           <input
             className="w-full bg-transparent text-sm outline-none placeholder:text-outline"
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search by job title or recruiter company"
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by job title or company"
             value={query}
           />
         </label>
       </SurfaceCard>
 
-      <SurfaceCard className="page-section overflow-hidden">
+      {/* Table */}
+      <SurfaceCard className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead className="bg-surface-container-low">
-              <tr className="text-left text-xs uppercase tracking-[0.18em] text-outline">
-                <th className="px-6 py-4">Company</th>
-                <th className="px-6 py-4">Role</th>
-                <th className="px-6 py-4">Deadline</th>
-                <th className="px-6 py-4">Applicants</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-right">Action</th>
+              <tr className="text-left text-[10px] uppercase tracking-widest text-outline">
+                <th className="px-4 py-3">Company</th>
+                <th className="px-4 py-3">Role</th>
+                <th className="px-4 py-3">Deadline</th>
+                <th className="px-4 py-3">Applicants</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredJobs.map((job) => (
-                <tr
-                  key={job.id}
-                  className="interactive-strip border-t border-surface-container-low"
-                >
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-surface-container-low font-headline font-bold text-primary">
+                <tr key={job.id} className="border-t border-surface-container-low hover:bg-surface-container-low/40 transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-surface-container-low font-headline text-xs font-bold text-primary">
                         {job.companyInitials}
                       </div>
-                      <span className="font-semibold text-on-surface">{job.company}</span>
+                      <span className="text-sm font-semibold text-on-surface">{job.company}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-5 text-sm text-on-surface">{job.title}</td>
-                  <td className="px-6 py-5 text-sm text-on-surface-variant">{job.deadline}</td>
-                  <td className="px-6 py-5 text-sm text-on-surface">
+                  <td className="px-4 py-3 text-sm text-on-surface">{job.title}</td>
+                  <td className="px-4 py-3 text-sm text-on-surface-variant">{job.deadline}</td>
+                  <td className="px-4 py-3 text-sm text-on-surface">
                     {job.applicants}{" "}
                     <span className="text-on-surface-variant">(+{job.newApplicants})</span>
                   </td>
-                  <td className="px-6 py-5">
+                  <td className="px-4 py-3">
                     <ApplicationStatusBadge status={job.status} />
                   </td>
-                  <td className="px-6 py-5 text-right">
-                    <div className="flex justify-end gap-2">
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex justify-end gap-1.5">
                       <Link to={`/admin/jobs/${job.id}/edit`}>
-                        <Button variant="ghost" title="Edit job">
-                          <Pencil className="h-4 w-4" />
+                        <Button variant="ghost" size="sm" title="Edit job">
+                          <Pencil className="h-3.5 w-3.5" />
                           Edit
                         </Button>
                       </Link>
                       <Button
                         variant="ghost"
+                        size="sm"
                         disabled={(isClosing || isReopening) && statusActionId === job.id}
                         onClick={async () => {
                           setStatusActionId(job.id);
@@ -168,28 +166,35 @@ export default function ManageJobsPage() {
                       </Button>
                       <Button
                         variant="ghost"
+                        size="sm"
                         disabled={isExporting}
                         onClick={async () => {
                           try {
                             const fileName = await exportApplicants(job.id);
-                            toast.success(`${fileName} downloaded successfully.`);
+                            toast.success(`${fileName} downloaded.`);
                           } catch (mutationError) {
-                            const message =
-                              mutationError?.response?.data?.error ||
-                              "Excel export could not be generated.";
-                            toast.error(message);
+                            toast.error(
+                              mutationError?.response?.data?.error || "Export failed.",
+                            );
                           }
                         }}
                       >
                         Export
                       </Button>
                       <Link to={`/admin/jobs/${job.id}/applicants`}>
-                        <Button variant="secondary">Review</Button>
+                        <Button variant="secondary" size="sm">Review</Button>
                       </Link>
                     </div>
                   </td>
                 </tr>
               ))}
+              {filteredJobs.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-4 py-8 text-center text-sm text-on-surface-variant">
+                    No jobs match your search.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

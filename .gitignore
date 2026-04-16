@@ -6,8 +6,9 @@ npm-debug.log*
 # ─── Environment files ─────────────────────────────────────────────────────────
 .env
 .env.local
-.env.production
 .env.*.local
+# NOTE: .env.production is intentionally committed — it only contains the
+# public frontend API URL (VITE_* vars are baked into the JS bundle anyway)
 
 # ─── Frontend build ────────────────────────────────────────────────────────────
 frontend/dist/

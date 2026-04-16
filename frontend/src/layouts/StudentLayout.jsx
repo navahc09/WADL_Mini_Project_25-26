@@ -1,5 +1,4 @@
 import {
-  Bell,
   BriefcaseBusiness,
   FileArchive,
   LayoutDashboard,
@@ -12,7 +11,6 @@ import Button from "../components/ui/Button";
 import ShellHeader from "../components/ShellHeader";
 import ShellSidebar from "../components/ShellSidebar";
 import { useAuth } from "../hooks/useAuth";
-import { useUnreadCount } from "../hooks/useNotifications";
 
 const pageVariants = {
   initial: { opacity: 0, y: 14 },
@@ -25,25 +23,17 @@ export default function StudentLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { data: unreadCount = 0 } = useUnreadCount();
-
   const navigation = [
     { to: "/student", label: "Dashboard", icon: LayoutDashboard, end: true },
     { to: "/student/profile", label: "Profile", icon: UserCircle2 },
     { to: "/student/jobs", label: "Job Board", icon: BriefcaseBusiness },
     { to: "/student/applications", label: "Applications", icon: ScrollText },
     { to: "/student/documents", label: "Document Vault", icon: FileArchive },
-    {
-      to: "/student/notifications",
-      label: "Notifications",
-      icon: Bell,
-      badge: unreadCount > 0 ? unreadCount : undefined,
-    },
   ];
 
   return (
     <div className="editorial-shell h-screen overflow-hidden">
-      <div className="mx-auto flex h-full max-w-[1600px] gap-5 px-4 py-4 md:px-6">
+      <div className="mx-auto flex h-full max-w-[1600px] gap-4 px-3 py-3 md:px-5">
         {/* Sidebar */}
         <ShellSidebar
           navigation={navigation}
@@ -86,7 +76,6 @@ export default function StudentLayout() {
 
           {/* Compact topbar */}
           <ShellHeader
-            searchPlaceholder="Search jobs, companies, or updates…"
             user={user}
             actions={
               <Button variant="secondary" size="sm" onClick={() => navigate("/student/jobs")}>
@@ -96,7 +85,7 @@ export default function StudentLayout() {
           />
 
           {/* Scrollable page content with page transitions */}
-          <main className="flex-1 overflow-y-auto rounded-[1.2rem]">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden rounded-[1.2rem]">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={location.pathname}
@@ -104,7 +93,7 @@ export default function StudentLayout() {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                className="pb-6"
+                className="px-2 pb-4 pt-2"
               >
                 <Outlet />
               </motion.div>

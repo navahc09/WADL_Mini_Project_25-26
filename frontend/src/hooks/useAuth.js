@@ -5,7 +5,6 @@ export function useAuth() {
   const accessToken = useAuthStore((state) => state.accessToken);
   const refreshToken = useAuthStore((state) => state.refreshToken);
   const login = useAuthStore((state) => state.login);
-  const registerStudent = useAuthStore((state) => state.registerStudent);
   const loginAs = useAuthStore((state) => state.loginAs);
   const logout = useAuthStore((state) => state.logout);
 
@@ -15,7 +14,6 @@ export function useAuth() {
     refreshToken,
     isAuthenticated: Boolean(user),
     login,
-    registerStudent,
     loginAs,
     logout,
   };

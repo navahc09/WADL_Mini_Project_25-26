@@ -3,20 +3,14 @@ import { Filter, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { useSearchParams } from "react-router-dom";
 import JobCard from "../../components/JobCard";
-import SectionHeading from "../../components/ui/SectionHeading";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import { useJobs } from "../../hooks/useJobs";
 
 const typeOptions = ["All", "Internship", "Full-time"];
-
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.07 } },
-};
-
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.25, 0.1, 0.25, 1] } },
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.25, 0.1, 0.25, 1] } },
 };
 
 export default function JobBoardPage() {
@@ -35,126 +29,96 @@ export default function JobBoardPage() {
   }, [searchParams]);
 
   const deferredQuery = useDeferredValue(filters.query);
-
-  const { data: jobs = [], isLoading, isError, error } = useJobs({
-    ...filters,
-    query: deferredQuery,
-  });
-
+  const { data: jobs = [], isLoading, isError, error } = useJobs({ ...filters, query: deferredQuery });
   const featuredJobs = useMemo(() => jobs.filter((job) => job.featured), [jobs]);
 
   if (isLoading) {
     return (
-      <SurfaceCard className="p-8">
-        <h2 className="font-headline text-3xl font-bold">Loading job board</h2>
-        <p className="mt-3 text-sm text-on-surface-variant">
-          Fetching eligible roles and recruiter filters from the backend.
-        </p>
+      <SurfaceCard className="p-5">
+        <h2 className="font-headline text-xl font-bold">Loading job board…</h2>
+        <p className="mt-1 text-sm text-on-surface-variant">Fetching eligible roles.</p>
       </SurfaceCard>
     );
   }
 
   if (isError) {
     return (
-      <SurfaceCard className="p-8">
-        <h2 className="font-headline text-3xl font-bold">Job board unavailable</h2>
-        <p className="mt-3 text-sm text-on-surface-variant">
-          {error?.response?.data?.error || "We could not load available jobs right now."}
+      <SurfaceCard className="p-5">
+        <h2 className="font-headline text-xl font-bold">Job board unavailable</h2>
+        <p className="mt-1 text-sm text-on-surface-variant">
+          {error?.response?.data?.error || "Could not load available jobs right now."}
         </p>
       </SurfaceCard>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <SectionHeading
-        label="Curated Careers"
-        title="Browse roles with eligibility context built in"
-        description="Search by company, location, and role type, then focus only on positions that already fit your current academic profile."
-      />
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-      >
-        <SurfaceCard className="p-6">
-          <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr_0.9fr_auto]">
-            <label className="flex items-center gap-3 rounded-[1.2rem] bg-surface-container-low px-4 py-3.5">
-              <Search className="h-4 w-4 text-outline" />
-              <input
-                className="w-full bg-transparent text-sm outline-none placeholder:text-outline"
-                onChange={(event) =>
-                  startTransition(() =>
-                    setFilters((current) => ({ ...current, query: event.target.value })),
-                  )
-                }
-                placeholder="Search roles, companies, or skill clusters"
-                value={filters.query}
-              />
-            </label>
-
+    <div className="space-y-4">
+      {/* Search & filters */}
+      <SurfaceCard className="p-3">
+        <div className="grid gap-3 lg:grid-cols-[1.4fr_1fr_0.9fr_auto]">
+          <label className="flex items-center gap-2 rounded-xl bg-surface-container-low px-3 py-2.5">
+            <Search className="h-3.5 w-3.5 text-outline" />
             <input
-              className="field-shell w-full"
-              onChange={(event) =>
-                startTransition(() =>
-                  setFilters((current) => ({ ...current, location: event.target.value })),
-                )
-              }
-              placeholder="Location or work mode"
-              value={filters.location}
+              className="w-full bg-transparent text-sm outline-none placeholder:text-outline"
+              onChange={(e) => startTransition(() => setFilters((c) => ({ ...c, query: e.target.value })))}
+              placeholder="Search roles, companies, or skills"
+              value={filters.query}
             />
+          </label>
 
-            <select
-              className="field-shell w-full"
-              onChange={(event) =>
-                startTransition(() =>
-                  setFilters((current) => ({
-                    ...current,
-                    type: event.target.value === "All" ? "" : event.target.value.toLowerCase(),
-                  }))
-                )
-              }
-              value={filters.type ? filters.type[0].toUpperCase() + filters.type.slice(1) : "All"}
-            >
-              {typeOptions.map((option) => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
+          <input
+            className="field-shell w-full"
+            onChange={(e) => startTransition(() => setFilters((c) => ({ ...c, location: e.target.value })))}
+            placeholder="Location or work mode"
+            value={filters.location}
+          />
 
-            <button
-              className={`inline-flex items-center justify-center gap-2 rounded-[1.2rem] px-4 py-3 text-sm font-semibold transition-colors ${
-                filters.eligibleOnly
-                  ? "bg-primary text-white"
-                  : "bg-surface-container-low text-on-surface-variant"
-              }`}
-              onClick={() =>
-                startTransition(() =>
-                  setFilters((current) => ({ ...current, eligibleOnly: !current.eligibleOnly })),
-                )
-              }
-              type="button"
-            >
-              <Filter className="h-4 w-4" />
-              Eligible only
-            </button>
-          </div>
-        </SurfaceCard>
-      </motion.div>
+          <select
+            className="field-shell w-full"
+            onChange={(e) =>
+              startTransition(() =>
+                setFilters((c) => ({
+                  ...c,
+                  type: e.target.value === "All" ? "" : e.target.value.toLowerCase(),
+                }))
+              )
+            }
+            value={filters.type ? filters.type[0].toUpperCase() + filters.type.slice(1) : "All"}
+          >
+            {typeOptions.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
 
+          <button
+            className={`inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${
+              filters.eligibleOnly
+                ? "bg-primary text-white"
+                : "bg-surface-container-low text-on-surface-variant"
+            }`}
+            onClick={() => startTransition(() => setFilters((c) => ({ ...c, eligibleOnly: !c.eligibleOnly })))}
+            type="button"
+          >
+            <Filter className="h-3.5 w-3.5" />
+            Eligible only
+          </button>
+        </div>
+      </SurfaceCard>
+
+      {/* Featured */}
       {featuredJobs.length > 0 && (
         <motion.section
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1], delay: 0.1 }}
-          className="space-y-5"
+          transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+          className="space-y-3"
         >
-          <SectionHeading
-            label="Featured"
-            title="High-signal opportunities"
-            description="A highlighted shortlist of roles with premium compensation and strong alignment to your profile."
-          />
-          <motion.div variants={stagger} initial="hidden" animate="show" className="grid gap-6 lg:grid-cols-2">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Featured</p>
+            <h3 className="font-headline text-base font-bold">High-signal opportunities</h3>
+          </div>
+          <motion.div variants={stagger} initial="hidden" animate="show" className="grid gap-3 lg:grid-cols-2">
             {featuredJobs.map((job) => (
               <motion.div key={job.id} variants={fadeUp}>
                 <JobCard className="border border-white/50" job={job} />
@@ -164,22 +128,23 @@ export default function JobBoardPage() {
         </motion.section>
       )}
 
+      {/* All roles */}
       <motion.section
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1], delay: 0.15 }}
-        className="space-y-5"
+        transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
+        className="space-y-3"
       >
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-headline text-3xl font-bold">All matching roles</h3>
-            <p className="mt-1 text-sm text-on-surface-variant">
-              {jobs.length} role{jobs.length === 1 ? "" : "s"} visible with current filters.
+            <h3 className="font-headline text-base font-bold">All matching roles</h3>
+            <p className="text-xs text-on-surface-variant">
+              {jobs.length} role{jobs.length === 1 ? "" : "s"} with current filters
             </p>
           </div>
         </div>
 
-        <motion.div variants={stagger} initial="hidden" animate="show" className="grid gap-6 lg:grid-cols-2">
+        <motion.div variants={stagger} initial="hidden" animate="show" className="grid gap-3 lg:grid-cols-2">
           {jobs.map((job) => (
             <motion.div key={job.id} variants={fadeUp}>
               <JobCard job={job} />
@@ -187,9 +152,9 @@ export default function JobBoardPage() {
           ))}
           {jobs.length === 0 && (
             <motion.div variants={fadeUp} className="lg:col-span-2">
-              <SurfaceCard className="p-10 text-center">
-                <p className="font-headline text-xl font-bold text-on-surface">No roles found</p>
-                <p className="mt-2 text-sm text-on-surface-variant">
+              <SurfaceCard className="p-6 text-center">
+                <p className="font-headline text-base font-bold text-on-surface">No roles found</p>
+                <p className="mt-1 text-sm text-on-surface-variant">
                   Try adjusting your search or filter settings.
                 </p>
               </SurfaceCard>

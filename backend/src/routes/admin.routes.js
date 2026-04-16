@@ -26,4 +26,11 @@ router.patch(
 );
 router.get("/analytics", adminController.getAnalytics);
 
+// Student management
+router.get("/students", adminController.listStudents);
+router.post("/students", adminController.createStudent);
+router.put("/students/:id", adminController.updateStudent);
+router.post("/students/:id/send-setup-link", adminController.sendStudentSetupLink);
+router.post("/students/:id/send-reset-link", adminController.sendStudentResetLink);
+
 module.exports = router;

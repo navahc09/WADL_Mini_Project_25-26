@@ -7,7 +7,8 @@ const StudentLayout = lazy(() => import("./layouts/StudentLayout"));
 const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
-const RegisterPage = lazy(() => import("./pages/auth/RegisterPage"));
+const SetupPasswordPage = lazy(() => import("./pages/auth/SetupPasswordPage"));
+const ResetPasswordPage = lazy(() => import("./pages/auth/ResetPasswordPage"));
 const Dashboard = lazy(() => import("./pages/student/Dashboard"));
 const ProfilePage = lazy(() => import("./pages/student/ProfilePage"));
 const JobBoardPage = lazy(() => import("./pages/student/JobBoardPage"));
@@ -21,6 +22,7 @@ const ManageJobsPage = lazy(() => import("./pages/admin/ManageJobsPage"));
 const ApplicantsPage = lazy(() => import("./pages/admin/ApplicantsPage"));
 const EditJobPage = lazy(() => import("./pages/admin/EditJobPage"));
 const PlacementAnalyticsPage = lazy(() => import("./pages/admin/PlacementAnalyticsPage"));
+const ManageStudentsPage = lazy(() => import("./pages/admin/ManageStudentsPage"));
 
 function RoleHomeRedirect() {
   const { user } = useAuth();
@@ -54,7 +56,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/setup-password" element={<SetupPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           <Route
             path="/student"
@@ -82,6 +85,7 @@ export default function App() {
             }
           >
             <Route index element={<AdminDashboard />} />
+            <Route path="students" element={<ManageStudentsPage />} />
             <Route path="jobs/new" element={<PostJobPage />} />
             <Route path="jobs" element={<ManageJobsPage />} />
             <Route path="jobs/:id/edit" element={<EditJobPage />} />

@@ -3,15 +3,41 @@ name: Deploy TNP Platform
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]   # CI checks on PRs — no deployment runs
 
 env:
   AWS_REGION: ap-south-1
 
 jobs:
+  # ─── CI — Build check (runs on every push + PR) ───────────────────────────────
+  ci:
+    name: CI — Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+
+      - name: Build React app
+        # .env.production is committed to the repo and Vite loads it automatically
+        # during `vite build` — no env injection needed here
+        run: cd frontend && npm run build
+
   # ─── Backend ─────────────────────────────────────────────────────────────────
   deploy-backend:
     name: Deploy Backend → EC2
     runs-on: ubuntu-latest
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
     steps:
       - uses: actions/checkout@v4
 
@@ -28,8 +54,9 @@ jobs:
 
             echo "── Clone or pull repo"
             if [ -d "$REPO_DIR/.git" ]; then
-              echo "   Repo exists — pulling latest"
-              git -C "$REPO_DIR" pull origin main
+              echo "   Repo exists — syncing to latest commit"
+              git -C "$REPO_DIR" fetch --prune
+              git -C "$REPO_DIR" reset --hard origin/main
             else
               echo "   Repo missing — cloning fresh"
               rm -rf "$REPO_DIR"
@@ -37,26 +64,29 @@ jobs:
             fi
 
             echo "── Writing backend production env"
-            printf '%s\n' \
-              'NODE_ENV=production' \
-              'PORT=5000' \
-              'DATABASE_URL=${{ secrets.DATABASE_URL }}' \
-              'DB_SSL=true' \
-              'JWT_SECRET=${{ secrets.JWT_SECRET }}' \
-              'JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}' \
-              'AWS_REGION=${{ env.AWS_REGION }}' \
-              'AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}' \
-              'AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}' \
-              'AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}' \
-              'S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}' \
-              'SES_FROM_EMAIL=${{ secrets.SES_FROM_EMAIL }}' \
-              'SES_CONFIGURATION_SET=${{ secrets.SES_CONFIGURATION_SET }}' \
-              'FRONTEND_URL=${{ secrets.FRONTEND_URL }}' \
-              'DISABLE_CRON=false' > "$REPO_DIR/backend/.env"
+            cat > "$REPO_DIR/backend/.env" << ENVEOF
+            NODE_ENV=production
+            PORT=5000
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            DB_SSL=${{ secrets.DB_SSL }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}
+            AWS_REGION=${{ env.AWS_REGION }}
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}
+            SES_FROM_EMAIL=${{ secrets.SES_FROM_EMAIL }}
+            SES_CONFIGURATION_SET=${{ secrets.SES_CONFIGURATION_SET }}
+            FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+            DISABLE_CRON=false
+            ENVEOF
+
+            # Strip leading whitespace from each line (heredoc indentation)
+            sed -i 's/^[[:space:]]*//' "$REPO_DIR/backend/.env"
 
             echo "── Installing backend dependencies"
             cd "$REPO_DIR/backend"
-            npm install --omit=dev
+            npm ci --omit=dev
 
             echo "── Running migrations"
             npm run migrate
@@ -65,40 +95,41 @@ jobs:
             sudo cp "$REPO_DIR/nginx/tnp.conf" /etc/nginx/conf.d/tnp.conf
             sudo nginx -t && sudo systemctl reload nginx
 
-            echo "── Starting / reloading PM2"
-            pm2 delete tnp-backend || true
+            echo "── Starting / reloading PM2 (zero-downtime)"
+            mkdir -p /home/ec2-user/logs
             cd "$REPO_DIR/backend"
-            pm2 start ecosystem.config.js --update-env
-            pm2 startup | tail -1 | bash || true
+            if pm2 describe tnp-backend > /dev/null 2>&1; then
+              pm2 reload tnp-backend --update-env
+            else
+              pm2 start ecosystem.config.js --update-env
+            fi
             pm2 save
-            pm2 status tnp-backend || true
 
             echo "── Health check"
-            for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+            for attempt in $(seq 1 15); do
               if curl -sf http://127.0.0.1:5000/health; then
                 echo
-                echo "✅ Backend health check passed"
+                echo "✅ Backend health check passed (attempt $attempt)"
                 break
               fi
 
               if [ "$attempt" -eq 15 ]; then
-                echo "Health check FAILED"
-                pm2 status || true
+                echo "❌ Health check FAILED after 15 attempts"
                 pm2 logs tnp-backend --lines 50 || true
                 exit 1
               fi
 
-              echo "   Waiting for backend to become ready... (attempt $attempt/15)"
+              echo "   Waiting for backend... (attempt $attempt/15)"
               sleep 5
             done
 
-            echo "✅ Backend deployed"
+            echo "✅ Backend deployed successfully"
 
   # ─── Frontend ────────────────────────────────────────────────────────────────
   deploy-frontend:
     name: Build & Deploy Frontend → S3 + CloudFront
     runs-on: ubuntu-latest
-    needs: deploy-backend   # only deploy frontend after backend is healthy
+    needs: deploy-backend
 
     steps:
       - uses: actions/checkout@v4
@@ -113,9 +144,9 @@ jobs:
         run: cd frontend && npm ci
 
       - name: Build React app
+        # Vite automatically loads frontend/.env.production during `vite build`.
+        # VITE_API_BASE_URL is defined there — no secret injection required.
         run: cd frontend && npm run build
-        env:
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -126,47 +157,50 @@ jobs:
 
       - name: Upload to S3
         run: |
-          FRONTEND_BUCKET='${{ secrets.S3_FRONTEND_BUCKET }}'
+          FRONTEND_BUCKET="${{ secrets.S3_FRONTEND_BUCKET }}"
+          # Strip protocol/path if someone accidentally pasted a URL
           FRONTEND_BUCKET="${FRONTEND_BUCKET#http://}"
           FRONTEND_BUCKET="${FRONTEND_BUCKET#https://}"
           FRONTEND_BUCKET="${FRONTEND_BUCKET%%/*}"
 
           if [ -z "$FRONTEND_BUCKET" ]; then
-            echo "S3_FRONTEND_BUCKET secret is empty or invalid"
+            echo "❌ S3_FRONTEND_BUCKET secret is empty or invalid"
             exit 1
           fi
 
-          echo "Deploying frontend to bucket: $FRONTEND_BUCKET"
-          aws s3 sync frontend/dist/ s3://$FRONTEND_BUCKET/ \
+          echo "📦 Uploading frontend build to s3://$FRONTEND_BUCKET"
+          aws s3 sync frontend/dist/ "s3://$FRONTEND_BUCKET/" \
             --delete \
             --region ${{ env.AWS_REGION }}
+          echo "✅ S3 upload complete"
 
-      - name: Invalidate CloudFront
+      - name: Invalidate CloudFront cache
         run: |
-          CF_DISTRIBUTION_ID='${{ secrets.CF_DISTRIBUTION_ID }}'
+          CF_DIST_ID="${{ secrets.CF_DIST_ID }}"
 
-          if [ -z "$CF_DISTRIBUTION_ID" ]; then
-            echo "CF_DISTRIBUTION_ID secret is empty. Skipping invalidation."
+          if [ -z "$CF_DIST_ID" ]; then
+            echo "⚠️  CF_DIST_ID not set — skipping CloudFront invalidation."
             exit 0
           fi
 
-          case "$CF_DISTRIBUTION_ID" in
+          case "$CF_DIST_ID" in
             http://*|https://*|*.cloudfront.net)
-              echo "CF_DISTRIBUTION_ID must be a CloudFront distribution ID (example: E123ABC456), not a URL/domain."
+              echo "❌ CF_DIST_ID must be a distribution ID (e.g. E1A2B3C4D5), not a URL."
               exit 1
               ;;
           esac
 
-          echo "Invalidating CloudFront distribution: $CF_DISTRIBUTION_ID"
+          echo "🔄 Invalidating CloudFront distribution: $CF_DIST_ID"
           aws cloudfront create-invalidation \
-            --distribution-id "$CF_DISTRIBUTION_ID" \
+            --distribution-id "$CF_DIST_ID" \
             --paths "/*"
+          echo "✅ CloudFront invalidation triggered"
 
-      - name: Summary
+      - name: Deployment summary
         run: |
-          CF_DISTRIBUTION_ID='${{ secrets.CF_DISTRIBUTION_ID }}'
-          if [ -n "$CF_DISTRIBUTION_ID" ]; then
-            echo "✅ Frontend deployed to https://${CF_DISTRIBUTION_ID}.cloudfront.net"
+          FRONTEND_URL="${{ secrets.FRONTEND_URL }}"
+          if [ -n "$FRONTEND_URL" ]; then
+            echo "✅ Frontend live at: $FRONTEND_URL"
           else
-            echo "✅ Frontend deployed to S3 (CloudFront invalidation skipped: CF_DISTRIBUTION_ID is empty)"
+            echo "✅ Frontend deployed to S3"
           fi
