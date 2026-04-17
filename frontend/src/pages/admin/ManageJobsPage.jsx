@@ -1,11 +1,11 @@
-import { Pencil, Search } from "lucide-react";
+import { Pencil, Search, Send } from "lucide-react";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useSearchParams } from "react-router-dom";
 import ApplicationStatusBadge from "../../components/ApplicationStatusBadge";
 import Button from "../../components/ui/Button";
 import SurfaceCard from "../../components/ui/SurfaceCard";
-import { useAdminJobs, useCloseJob, useExportApplicants, useReopenJob } from "../../hooks/useAdmin";
+import { useAdminJobs, useCloseJob, useExportApplicants, usePublishJob, useReopenJob } from "../../hooks/useAdmin";
 
 export default function ManageJobsPage() {
   const [searchParams] = useSearchParams();
@@ -15,6 +15,7 @@ export default function ManageJobsPage() {
   const { mutateAsync: exportApplicants, isPending: isExporting } = useExportApplicants();
   const { mutateAsync: closeJob, isPending: isClosing } = useCloseJob();
   const { mutateAsync: reopenJob, isPending: isReopening } = useReopenJob();
+  const { mutateAsync: publishJob, isPending: isPublishing } = usePublishJob();
   const [statusActionId, setStatusActionId] = useState(null);
 
   useEffect(() => {
@@ -114,8 +115,14 @@ export default function ManageJobsPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredJobs.map((job) => (
-                <tr key={job.id} className="border-t border-surface-container-low hover:bg-surface-container-low/40 transition-colors">
+              {filteredJobs.map((job) => {
+                const isDraft = job.status === "Draft";
+                return (
+                <tr key={job.id} className={`border-t border-surface-container-low transition-colors ${
+                  isDraft
+                    ? "bg-amber-50/60 hover:bg-amber-50"
+                    : "hover:bg-surface-container-low/40"
+                }`}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-surface-container-low font-headline text-xs font-bold text-primary">
@@ -124,8 +131,15 @@ export default function ManageJobsPage() {
                       <span className="text-sm font-semibold text-on-surface">{job.company}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-on-surface">{job.title}</td>
-                  <td className="px-4 py-3 text-sm text-on-surface-variant">{job.deadline}</td>
+                  <td className="px-4 py-3 text-sm text-on-surface">
+                    {job.title}
+                    {isDraft && (
+                      <span className="ml-2 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                        Draft
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-on-surface-variant">{job.deadline || "—"}</td>
                   <td className="px-4 py-3 text-sm text-on-surface">
                     {job.applicants}{" "}
                     <span className="text-on-surface-variant">(+{job.newApplicants})</span>
@@ -135,38 +149,58 @@ export default function ManageJobsPage() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-1.5">
+                      {/* Publish button — only on drafts */}
+                      {isDraft && (
+                        <Button
+                          variant="ghost" size="sm"
+                          disabled={isPublishing && statusActionId === job.id}
+                          onClick={async () => {
+                            setStatusActionId(job.id);
+                            try {
+                              await publishJob(job.id);
+                              toast.success(`“${job.title}” is now LIVE.`);
+                            } catch (err) {
+                              toast.error(err?.response?.data?.error || "Publish failed.");
+                            } finally {
+                              setStatusActionId(null);
+                            }
+                          }}
+                        >
+                          <Send className="h-3.5 w-3.5" /> Publish
+                        </Button>
+                      )}
                       <Link to={`/admin/jobs/${job.id}/edit`}>
                         <Button variant="ghost" size="sm" title="Edit job">
                           <Pencil className="h-3.5 w-3.5" />
                           Edit
                         </Button>
                       </Link>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={(isClosing || isReopening) && statusActionId === job.id}
-                        onClick={async () => {
-                          setStatusActionId(job.id);
-                          try {
-                            if (job.status === "Closed") {
-                              await reopenJob(job.id);
-                              toast.success(`${job.title} reopened.`);
-                            } else {
-                              await closeJob(job.id);
-                              toast.success(`${job.title} closed.`);
+                      {!isDraft && (
+                        <Button
+                          variant="ghost" size="sm"
+                          disabled={(isClosing || isReopening) && statusActionId === job.id}
+                          onClick={async () => {
+                            setStatusActionId(job.id);
+                            try {
+                              if (job.status === "Closed") {
+                                await reopenJob(job.id);
+                                toast.success(`${job.title} reopened.`);
+                              } else {
+                                await closeJob(job.id);
+                                toast.success(`${job.title} closed.`);
+                              }
+                            } catch (err) {
+                              toast.error(err?.response?.data?.error || "Status change failed.");
+                            } finally {
+                              setStatusActionId(null);
                             }
-                          } catch (err) {
-                            toast.error(err?.response?.data?.error || "Status change failed.");
-                          } finally {
-                            setStatusActionId(null);
-                          }
-                        }}
-                      >
-                        {job.status === "Closed" ? "Reopen" : "Close"}
-                      </Button>
+                          }}
+                        >
+                          {job.status === "Closed" ? "Reopen" : "Close"}
+                        </Button>
+                      )}
                       <Button
-                        variant="ghost"
-                        size="sm"
+                        variant="ghost" size="sm"
                         disabled={isExporting}
                         onClick={async () => {
                           try {
@@ -187,7 +221,8 @@ export default function ManageJobsPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
               {filteredJobs.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-sm text-on-surface-variant">

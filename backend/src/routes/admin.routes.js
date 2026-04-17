@@ -46,6 +46,7 @@ router.post("/jobs/validate",          adminController.validateJD);
 router.put("/jobs/:id",                validate(updateJobSchema), adminController.updateJob);
 router.post("/jobs/:id/close",         adminController.closeJob);
 router.post("/jobs/:id/reopen",        adminController.reopenJob);
+router.post("/jobs/:id/publish",       adminController.publishJob);
 router.delete("/jobs/:id",             adminController.deleteJob);
 router.get("/jobs/:id/applicants",     adminController.getApplicants);
 router.get("/jobs/:id/export",         adminController.exportApplicants);
@@ -79,6 +80,7 @@ router.post("/students/bulk-deactivate",         adminController.bulkDeactivateS
 router.post("/students/bulk-assign-branch",      adminController.bulkAssignBranch);
 
 // ── Parameterized student routes ───────────────────────────────────────────────
+router.get("/students/:id",                      adminController.getStudentById);
 router.put("/students/:id",                      adminController.updateStudent);
 router.post("/students/:id/send-setup-link",     adminController.sendStudentSetupLink);
 router.post("/students/:id/send-reset-link",     adminController.sendStudentResetLink);

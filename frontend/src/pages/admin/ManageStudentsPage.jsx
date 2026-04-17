@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import {
   ChevronDown,
   Loader2,
@@ -21,7 +22,7 @@ import { z } from "zod";
 import Button from "../../components/ui/Button";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import BulkUploadDrawer from "../../components/ui/BulkUploadDrawer";
-import { useBulkActions } from "../../hooks/useAdmin";
+import { useBulkActions, useStudentDetail } from "../../hooks/useAdmin";
 import apiClient from "../../lib/apiClient";
 
 const BRANCH_OPTIONS = [
@@ -34,11 +35,19 @@ const BRANCH_OPTIONS = [
 
 const YEARS = ["2025", "2026", "2027", "2028", "2029"];
 
-const optionalPercent = z
-  .preprocess(
-    (v) => (v === "" || v === null || (typeof v === "number" && isNaN(v)) ? undefined : Number(v)),
-    z.number().min(0, "0–100").max(100, "0–100").optional(),
-  );
+// Preprocess that safely converts any empty/NaN/undefined value to undefined
+// so z.number().optional() treats it correctly instead of failing with "nan"
+const toOptionalNumber = (v) => {
+  if (v === "" || v === null || v === undefined) return undefined;
+  if (typeof v === "number" && isNaN(v)) return undefined;
+  const n = Number(v);
+  return isNaN(n) ? undefined : n;
+};
+
+const optionalPercent = z.preprocess(
+  toOptionalNumber,
+  z.number().min(0, "Must be 0–100").max(100, "Must be 0–100").optional(),
+);
 
 const createSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
@@ -47,10 +56,12 @@ const createSchema = z.object({
   phone: z.string().optional(),
   branch: z.string().min(1, "Select a branch"),
   graduationYear: z.string().min(4, "Select graduation year"),
-  cgpa: z
-    .number({ required_error: "CGPA is required", invalid_type_error: "Enter a valid number (0–10)" })
-    .min(0, "CGPA must be ≥ 0")
-    .max(10, "CGPA must be ≤ 10"),
+  // Use preprocess so that an empty/NaN/undefined value is treated as missing,
+  // not as an invalid number — avoids "Expected number, received nan" on blur
+  cgpa: z.preprocess(
+    toOptionalNumber,
+    z.number({ required_error: "CGPA is required" }).min(0, "Must be 0–10").max(10, "Must be 0–10"),
+  ),
   gender: z.string().optional(),
   city: z.string().optional(),
   tenthPercent: optionalPercent,
@@ -86,29 +97,36 @@ function Field({ label, error, children }) {
   );
 }
 
-function Input({ className = "", ...props }) {
-  return (
-    <input
-      className={`field-shell w-full py-2 text-sm ${className}`}
-      {...props}
-    />
-  );
-}
+// forwardRef is REQUIRED so react-hook-form's register() ref callback reaches
+// the actual <input> DOM node. Without it, React strips `ref` from the custom
+// component props and RHF can't read field values → all values stay undefined.
+const Input = forwardRef(({ className = "", ...props }, ref) => (
+  <input
+    ref={ref}
+    className={`field-shell w-full py-2 text-sm ${className}`}
+    {...props}
+  />
+));
+Input.displayName = "Input";
 
-function Select({ children, className = "", ...props }) {
-  return (
-    <select className={`field-shell w-full py-2 text-sm ${className}`} {...props}>
-      {children}
-    </select>
-  );
-}
+const Select = forwardRef(({ children, className = "", ...props }, ref) => (
+  <select ref={ref} className={`field-shell w-full py-2 text-sm ${className}`} {...props}>
+    {children}
+  </select>
+));
+Select.displayName = "Select";
 
 // ── Side Panel ────────────────────────────────────────────────────────────────
 function StudentPanel({ open, onClose, editStudent }) {
   const queryClient = useQueryClient();
   const isEdit = Boolean(editStudent);
-
   const schema = isEdit ? editSchema : createSchema;
+
+  // Fetch the FULL profile only when editing (editStudent has the user id)
+  const {
+    data: studentDetail,
+    isLoading: detailLoading,
+  } = useStudentDetail(isEdit ? editStudent?.id : null);
 
   const {
     register,
@@ -117,29 +135,38 @@ function StudentPanel({ open, onClose, editStudent }) {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(schema),
-    mode: "onChange",
+    // "onTouched": validate after first blur, then live on every change.
+    // Avoids showing errors before the user has touched a field.
+    mode: "onTouched",
     defaultValues: createDefaults,
   });
 
-  // Pre-fill or clear form when panel opens
+  // When panel opens for ADD: reset to blank defaults.
+  // When panel opens for EDIT + full profile arrives: pre-fill all fields.
   useEffect(() => {
-    if (editStudent) {
-      reset({
-        fullName: editStudent.name || "",
-        email: editStudent.email || "",
-        phone: editStudent.phone || "",
-        branch: editStudent.branch || "",
-        graduationYear: String(editStudent.graduation_year || ""),
-        cgpa: editStudent.cgpa != null ? Number(editStudent.cgpa) : undefined,
-        gender: editStudent.gender || "",
-        city: editStudent.city || "",
-        tenthPercent: editStudent.tenth_percent != null ? Number(editStudent.tenth_percent) : undefined,
-        twelfthPercent: editStudent.twelfth_percent != null ? Number(editStudent.twelfth_percent) : undefined,
-      });
-    } else {
+    if (!open) return;
+    if (!isEdit) {
       reset(createDefaults);
+      return;
     }
-  }, [editStudent, reset]);
+    // While the detail query is still loading, wait — don't pre-fill with
+    // the partial list-row data (missing phone, city, tenth_percent, etc.).
+    if (detailLoading || !studentDetail) return;
+
+    reset({
+      fullName:      studentDetail.name || "",
+      email:         studentDetail.email || "",
+      enrollmentNo:  studentDetail.enrollmentNo || "",
+      phone:         studentDetail.phone || "",
+      branch:        studentDetail.branch || "",
+      graduationYear: studentDetail.graduationYear || "",
+      cgpa:          studentDetail.cgpa != null ? String(studentDetail.cgpa) : "",
+      gender:        studentDetail.gender || "",
+      city:          studentDetail.city || "",
+      tenthPercent:  studentDetail.tenthPercent != null ? String(studentDetail.tenthPercent) : "",
+      twelfthPercent: studentDetail.twelfthPercent != null ? String(studentDetail.twelfthPercent) : "",
+    });
+  }, [open, isEdit, studentDetail, detailLoading, reset]);
 
   const createMutation = useMutation({
     mutationFn: (data) => apiClient.post("/admin/students", data).then((r) => r.data),
@@ -171,7 +198,34 @@ function StudentPanel({ open, onClose, editStudent }) {
 
   if (!open) return null;
 
+  // Show a skeleton while the full profile is fetching (edit mode only)
+  if (isEdit && detailLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex">
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+        <div className="relative ml-auto flex h-full w-full max-w-[480px] flex-col bg-surface shadow-2xl">
+          <div className="flex items-start justify-between border-b border-outline-variant/20 px-5 py-4">
+            <div>
+              <h3 className="font-headline text-xl font-bold text-on-surface">Edit Student</h3>
+              <p className="mt-0.5 text-xs text-on-surface-variant">Loading student details...</p>
+            </div>
+            <button type="button" onClick={onClose}
+              className="rounded-xl p-1.5 text-on-surface-variant hover:bg-surface-container-low">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-10 animate-pulse rounded-xl bg-surface-container-low" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
+
     <div className="fixed inset-0 z-50 flex">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
@@ -278,15 +332,18 @@ function StudentPanel({ open, onClose, editStudent }) {
                 </Field>
 
                 <Field label="CGPA *" error={errors.cgpa?.message}>
-                  <Input type="number" step="0.01" min="0" max="10" {...register("cgpa", { valueAsNumber: true })} placeholder="e.g. 8.5" />
+                  {/* Do NOT use valueAsNumber here — the Zod preprocess handles
+                      coercion, and valueAsNumber: true causes RHF to store NaN
+                      for an empty field which bypasses the z.preprocess undefined check */}
+                  <Input type="number" step="0.01" min="0" max="10" {...register("cgpa")} placeholder="e.g. 8.5" />
                 </Field>
 
                 <Field label="10th %" error={errors.tenthPercent?.message}>
-                  <Input type="number" step="0.01" min="0" max="100" {...register("tenthPercent", { valueAsNumber: true })} placeholder="e.g. 88.5" />
+                  <Input type="number" step="0.01" min="0" max="100" {...register("tenthPercent")} placeholder="e.g. 88.5" />
                 </Field>
 
                 <Field label="12th %" error={errors.twelfthPercent?.message}>
-                  <Input type="number" step="0.01" min="0" max="100" {...register("twelfthPercent", { valueAsNumber: true })} placeholder="e.g. 85.0" />
+                  <Input type="number" step="0.01" min="0" max="100" {...register("twelfthPercent")} placeholder="e.g. 85.0" />
                 </Field>
               </div>
             </div>

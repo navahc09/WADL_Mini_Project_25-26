@@ -71,6 +71,18 @@ export function useReopenJob() {
   });
 }
 
+export function usePublishJob() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (jobId) =>
+      apiClient.post(`/admin/jobs/${jobId}/publish`).then((r) => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "dashboard"] });
+    },
+  });
+}
+
 export function useDeleteJob() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -234,4 +246,18 @@ export function useBulkActions() {
   });
 
   return { activate, deactivate, assignBranch };
+}
+
+// ── Student Detail (for edit modal pre-fill) ──────────────────────────────────
+// Fetches the full student profile from the backend when the edit panel opens.
+// Pass studentId=null when adding a new student — the query stays disabled.
+export function useStudentDetail(studentId) {
+  return useQuery({
+    queryKey: ["admin", "student", studentId],
+    queryFn: () =>
+      apiClient.get(`/admin/students/${studentId}`).then((r) => r.data),
+    enabled: Boolean(studentId),
+    // Keep the result fresh for 30 s — admin edits should see latest data
+    staleTime: 30_000,
+  });
 }

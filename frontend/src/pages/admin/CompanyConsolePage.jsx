@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertCircle, ArrowLeft, Building2, CalendarClock, CheckCircle2,
   Clock, ExternalLink, Mail, MessageSquare, Phone, Plus, Search,
-  Timeline, Users, X, ChevronDown,
+  Users, X, ChevronDown,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
@@ -275,6 +275,17 @@ function CompanyDetailPanel({ companyId, onClose }) {
             <Phone className="h-3.5 w-3.5" /> Log Contact
           </Button>
         </div>
+
+        {/* Hint: status auto-advances when you log events */}
+        {company.outreachStatus === "not_started" && (
+          <div className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3">
+            <p className="text-xs font-semibold text-blue-700">👋 Get started</p>
+            <p className="mt-0.5 text-xs text-blue-600">
+              Add a <span className="font-semibold">Timeline Event</span> (e.g. "Outreach Initiated") and the
+              company status will automatically move from <span className="font-semibold">Not Started → In Progress</span>.
+            </p>
+          </div>
+        )}
 
         {/* Timeline */}
         {company.timeline?.length > 0 && (

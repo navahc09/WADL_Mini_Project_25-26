@@ -281,7 +281,7 @@ async function createJob(req, res, next) {
           VALUES (
             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::text[], $12::text[], $13::text[],
             FALSE, 1, $14, $15::text[], $16::text[], $17::text[], $18::text[],
-            'open', $19
+            COALESCE($19, 'draft'), $20
           )
           RETURNING *
         `,
@@ -311,6 +311,8 @@ async function createJob(req, res, next) {
           normalizeList(req.body.process).length
             ? normalizeList(req.body.process)
             : ["Resume shortlist", "Technical evaluation", "Final recruiter discussion"],
+          // publishNow=true → 'open' immediately; default → 'draft'
+          req.body.publishNow ? 'open' : 'draft',
           deadline.toISOString(),
         ],
       );
@@ -746,6 +748,28 @@ async function reopenJob(req, res, next) {
   }
 }
 
+// Promote a draft → open (live on the student job board)
+async function publishJob(req, res, next) {
+  try {
+    const { rows } = await query(
+      `UPDATE jobs
+         SET status = 'open', updated_at = NOW()
+       WHERE id = $1 AND status = 'draft'
+       RETURNING id, status`,
+      [req.params.id],
+    );
+    if (!rows[0]) {
+      // Either not found OR already open/closed
+      const check = await query("SELECT id, status FROM jobs WHERE id = $1", [req.params.id]);
+      if (!check.rows[0]) return res.status(404).json({ error: "Job not found" });
+      return res.status(409).json({ error: `Job is already '${check.rows[0].status}' — cannot publish.` });
+    }
+    res.json({ id: rows[0].id, status: "Open" });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function deleteJob(req, res, next) {
   try {
     const countResult = await query(
@@ -798,6 +822,7 @@ module.exports = {
   updateJob,
   closeJob,
   reopenJob,
+  publishJob,
   deleteJob,
   validateJD,
   getEntityAuditLogs,
@@ -807,6 +832,7 @@ module.exports = {
   // student management
   createStudent,
   listStudents,
+  getStudentById,
   sendStudentSetupLink,
   sendStudentResetLink,
   updateStudent,
@@ -1010,6 +1036,72 @@ async function sendStudentResetLink(req, res, next) {
     await sendResetEmail(email, name, token);
 
     return res.json({ message: `Password reset link sent to ${email}.` });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+
+async function getStudentById(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const { rows } = await query(
+      `SELECT
+         u.id,
+         u.email,
+         u.display_name   AS name,
+         u.is_active,
+         u.created_at,
+         sp.full_name,
+         sp.phone,
+         sp.gender,
+         sp.branch,
+         sp.branch_code,
+         sp.graduation_year,
+         sp.cgpa,
+         sp.roll_number   AS enrollment_no,
+         sp.city,
+         sp.tenth_percent,
+         sp.twelfth_percent,
+         sp.profile_complete,
+         sp.headline,
+         sp.about,
+         sp.skills,
+         sp.active_backlogs,
+         (u.password_hash IS NOT NULL) AS has_password
+       FROM users u
+       JOIN student_profiles sp ON sp.user_id = u.id
+       WHERE u.id = $1 AND u.role = 'student'`,
+      [id],
+    );
+
+    if (!rows[0]) return res.status(404).json({ error: "Student not found." });
+
+    const s = rows[0];
+    return res.json({
+      id: s.id,
+      name: s.full_name || s.name,
+      email: s.email,
+      phone: s.phone || "",
+      gender: s.gender || "",
+      branch: s.branch || "",
+      branchCode: s.branch_code || "",
+      graduationYear: String(s.graduation_year || ""),
+      cgpa: s.cgpa != null ? Number(s.cgpa) : null,
+      enrollmentNo: s.enrollment_no || "",
+      city: s.city || "",
+      tenthPercent: s.tenth_percent != null ? Number(s.tenth_percent) : null,
+      twelfthPercent: s.twelfth_percent != null ? Number(s.twelfth_percent) : null,
+      isActive: s.is_active,
+      profileComplete: s.profile_complete,
+      hasPassword: s.has_password,
+      headline: s.headline || "",
+      about: s.about || "",
+      skills: s.skills || [],
+      activeBacklogs: s.active_backlogs != null ? Number(s.active_backlogs) : 0,
+      createdAt: s.created_at,
+    });
   } catch (error) {
     return next(error);
   }

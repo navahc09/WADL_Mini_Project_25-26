@@ -1,21 +1,39 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { AlertCircle, AlertTriangle, CheckCircle2, Info, ShieldCheck } from "lucide-react";
+import { AlertCircle, AlertTriangle, CheckCircle2, FileText, Info, Send, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAdminJobs, useValidateJD } from "../../hooks/useAdmin";
 import Button from "../../components/ui/Button";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import { checkJDClient } from "../../lib/jdChecker";
 
-const schema = z.object({
+// Draft save: only title + company required (partial save).
+const draftSchema = z.object({
+  company: z.string().min(1, "Company is required"),
+  title: z.string().min(1, "Role title is required"),
+  type: z.string().optional(),
+  mode: z.string().optional(),
+  location: z.string().optional(),
+  jobPackage: z.string().optional(),
+  deadline: z.string().optional(),
+  minCgpa: z.coerce.number().min(0).max(10).optional(),
+  maxActiveBacklogs: z.coerce.number().int().min(0).default(0),
+  branches: z.string().optional(),
+  skills: z.string().optional(),
+  description: z.string().optional(),
+  responsibilities: z.string().optional(),
+});
+
+// Publish: all mandatory fields required (same as before).
+const publishSchema = z.object({
   company: z.string().min(2, "Company name is required"),
   title: z.string().min(2, "Job title is required"),
-  type: z.string().min(1),
-  mode: z.string().min(1),
+  type: z.string().min(1, "Select a role type"),
+  mode: z.string().min(1, "Select a work mode"),
   location: z.string().min(2, "Location is required"),
   jobPackage: z.string().min(2, "Package info is required"),
   deadline: z.string().min(2, "Deadline is required"),
@@ -62,13 +80,19 @@ export default function PostJobPage() {
   const { createJob, isCreatingJob } = useAdminJobs();
   const [jdReport, setJdReport] = useState(null);
   const [showQuality, setShowQuality] = useState(false);
+  // Track which action was last clicked so we use the right schema
+  const [pendingAction, setPendingAction] = useState(null); // "draft" | "publish"
 
   const {
     register,
     handleSubmit,
     getValues,
+    trigger,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(schema) });
+  } = useForm({
+    resolver: zodResolver(pendingAction === "publish" ? publishSchema : draftSchema),
+    mode: "onSubmit",
+  });
 
   function runQualityCheck() {
     const values = getValues();
@@ -77,29 +101,53 @@ export default function PostJobPage() {
     setShowQuality(true);
   }
 
-  const onSubmit = handleSubmit(async (values) => {
-    // Auto-check quality before submitting
-    const check = checkJDClient(values);
-    if (!check.canPublish) {
-      setJdReport(check);
-      setShowQuality(true);
-      toast.error(`Fix ${check.warnings.filter((w) => w.severity === "error").length} error(s) before publishing.`);
+  async function handleAction(publishNow) {
+    // Switch the schema by setting pendingAction first
+    setPendingAction(publishNow ? "publish" : "draft");
+
+    // Validate — use publish schema for publish, draft schema for save-draft
+    const schema = publishNow ? publishSchema : draftSchema;
+    const values = getValues();
+    const parsed = schema.safeParse(values);
+    if (!parsed.success) {
+      // Show first error as a toast
+      const firstError = parsed.error.issues[0]?.message;
+      toast.error(firstError || "Fix validation errors before saving.");
+      // Re-trigger validation so errors show in the form
+      await trigger();
       return;
     }
 
+    if (publishNow) {
+      const check = checkJDClient(values);
+      if (!check.canPublish) {
+        setJdReport(check);
+        setShowQuality(true);
+        const errCount = check.warnings.filter((w) => w.severity === "error").length;
+        toast.error(`Fix ${errCount} error(s) before publishing.`);
+        return;
+      }
+    }
+
     try {
-      await createJob(values);
-      toast.success(`"${values.title}" at ${values.company} published.`);
+      await createJob({ ...parsed.data, publishNow });
+      toast.success(
+        publishNow
+          ? `"${parsed.data.title}" is now LIVE on the job board.`
+          : `"${parsed.data.title}" saved as draft — publish when ready.`,
+      );
       navigate("/admin/jobs");
     } catch (error) {
       const details = error?.response?.data?.details;
       const message =
         error?.response?.data?.error ||
         (Array.isArray(details) ? details.join(", ") : null) ||
-        "Job could not be published.";
+        (publishNow ? "Could not publish job." : "Could not save draft.");
       toast.error(message);
     }
-  });
+  }
+
+  const busy = isSubmitting || isCreatingJob;
 
   return (
     <div className="space-y-4">
@@ -113,14 +161,37 @@ export default function PostJobPage() {
           <Button size="sm" type="button" variant="secondary" onClick={runQualityCheck}>
             <ShieldCheck className="h-3.5 w-3.5" /> Check Quality
           </Button>
+
+          {/* Save as Draft — only title + company needed */}
+          <Button
+            size="sm" type="button" variant="secondary"
+            onClick={() => handleAction(false)}
+            disabled={busy}
+          >
+            <FileText className="h-3.5 w-3.5" />
+            {busy && pendingAction === "draft" ? "Saving…" : "Save Draft"}
+          </Button>
+
+          {/* Publish — runs full validation + JD quality check */}
           <Button
             size="sm" type="button"
-            onClick={() => formRef.current?.requestSubmit()}
-            disabled={isSubmitting || isCreatingJob}
+            onClick={() => handleAction(true)}
+            disabled={busy}
           >
-            {isSubmitting || isCreatingJob ? "Publishing…" : "Publish Draft"}
+            <Send className="h-3.5 w-3.5" />
+            {busy && pendingAction === "publish" ? "Publishing…" : "Publish Now"}
           </Button>
         </div>
+      </div>
+
+      {/* Draft info banner */}
+      <div className="flex items-start gap-2 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3">
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
+        <p className="text-xs text-blue-700">
+          <span className="font-semibold">Workflow:</span> Fill in what you have and{" "}
+          <span className="font-semibold">Save Draft</span> to come back later. Once everything looks good,
+          hit <span className="font-semibold">Publish Now</span> to make it live for students.
+        </p>
       </div>
 
       {/* JD Quality Panel */}
@@ -158,7 +229,7 @@ export default function PostJobPage() {
         )}
       </AnimatePresence>
 
-      <form ref={formRef} className="space-y-3" onSubmit={onSubmit}>
+      <form ref={formRef} className="space-y-3">
         {/* Core info */}
         <SurfaceCard className="p-4">
           <h3 className="font-semibold text-on-surface">Core Posting Information</h3>
@@ -185,6 +256,7 @@ export default function PostJobPage() {
                 <option>Internship</option>
                 <option>Full-time</option>
               </select>
+              {errors.type && <p className="ml-1 text-xs font-medium text-error">{errors.type.message}</p>}
             </label>
 
             <label className="space-y-1 text-sm">
@@ -195,11 +267,13 @@ export default function PostJobPage() {
                 <option>On-site</option>
                 <option>Remote</option>
               </select>
+              {errors.mode && <p className="ml-1 text-xs font-medium text-error">{errors.mode.message}</p>}
             </label>
 
             <label className="space-y-1 text-sm">
               <span className="ml-1 block text-xs text-on-surface-variant">Application Deadline</span>
               <input className="field-shell w-full" placeholder="e.g. 30 Apr 2026" {...register("deadline")} />
+              {errors.deadline && <p className="ml-1 text-xs font-medium text-error">{errors.deadline.message}</p>}
             </label>
 
             <label className="space-y-1 text-sm">
@@ -216,7 +290,7 @@ export default function PostJobPage() {
 
         {/* Eligibility */}
         <SurfaceCard className="p-4">
-          <h3 className="font-semibold text-on-surface">Eligibility & Skill Fit</h3>
+          <h3 className="font-semibold text-on-surface">Eligibility &amp; Skill Fit</h3>
           <p className="mt-0.5 text-xs text-on-surface-variant">
             Hard filters (branch, CGPA, backlogs) determine eligibility. Skills determine fit score among eligible candidates.
           </p>
