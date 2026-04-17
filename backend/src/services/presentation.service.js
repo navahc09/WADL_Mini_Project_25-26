@@ -254,6 +254,7 @@ function mapApplicationRow(row) {
     role: row.title,
     company: row.company_name,
     status: frontendStatus,
+    rawStatus: row.status,
     phase: buildApplicationPhase(row.status, rounds),
     appliedOn: formatDateLabel(row.applied_at),
     lastUpdated: formatRelative(row.updated_at),
@@ -262,6 +263,14 @@ function mapApplicationRow(row) {
     matchScore: parseNumber(row.match_score),
     timeline: buildApplicationTimeline(row.status, rounds),
     snapshot: row.snapshot_data,
+    documentId: row.document_id || null,
+    resumeFileName: row.snapshot_data?.resume_file_name || null,
+    deadline: row.application_deadline || null,
+    rounds: rounds.map((r) => ({
+      type: r.round_type,
+      scheduledAt: r.scheduled_at ? formatDateTimeLabel(r.scheduled_at) : null,
+      result: r.result,
+    })),
   };
 }
 

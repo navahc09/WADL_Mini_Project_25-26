@@ -30,6 +30,15 @@ export function useApplyToJob() {
   });
 }
 
+export function useApplication(id) {
+  return useQuery({
+    queryKey: ["application", id],
+    queryFn: () =>
+      apiClient.get(`/applications/${id}`).then((response) => response.data),
+    enabled: Boolean(id),
+  });
+}
+
 export function useChangeApplicationResume(applicationId) {
   const queryClient = useQueryClient();
   return useMutation({

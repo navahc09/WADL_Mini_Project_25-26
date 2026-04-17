@@ -1,6 +1,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
-import { Search, FileText, Lock } from "lucide-react";
+import { Search, FileText, Lock, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import ApplicationStatusBadge from "../../components/ApplicationStatusBadge";
 import SurfaceCard from "../../components/ui/SurfaceCard";
@@ -16,6 +17,7 @@ const fadeUp = {
 };
 
 export default function MyApplicationsPage() {
+  const navigate = useNavigate();
   const { data: allApplications = [], isLoading, isError, error } = useApplications("all");
   const { data: documents = [] } = useDocuments();
   const [resumePickAppId, setResumePickAppId] = useState(null);
@@ -159,6 +161,13 @@ export default function MyApplicationsPage() {
                   <span className="text-xs text-on-surface-variant">
                     Updated {application.lastUpdated}
                   </span>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/student/applications/${application.id}`)}
+                    className="flex items-center gap-1 rounded-full bg-surface-container-low px-2.5 py-1 text-[11px] font-semibold text-primary hover:bg-primary/10 transition-colors"
+                  >
+                    View Details <ChevronRight className="h-3 w-3" />
+                  </button>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {(application.timeline || []).map((step) => (

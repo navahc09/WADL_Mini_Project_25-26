@@ -1,6 +1,17 @@
 const bcrypt = require("bcryptjs");
 const { query, withTransaction } = require("../db");
-const { exportApplicantsToExcel } = require("../services/export.service");
+const {
+  exportApplicantsToExcel,
+  getCompanyTemplate,
+  upsertCompanyTemplate,
+  getAvailableColumns,
+} = require("../services/export.service");
+const {
+  buildPreview,
+  bulkInsertStudents,
+  checkDuplicatesForPayload,
+  DB_FIELDS,
+} = require("../services/bulkImport.service");
 const {
   formatDateLabel,
   mapApplicantStatus,
@@ -13,6 +24,9 @@ const {
   sendSetupEmail,
   sendResetEmail,
 } = require("./auth.controller");
+const { createAuditLog, getAuditLogs } = require("../services/audit.service");
+const { checkJD } = require("../services/jdChecker.service");
+const { checkEligibility } = require("../services/criteriaEngine.service");
 
 function normalizeList(value, splitter = /\r?\n|[.;]+/g) {
   if (Array.isArray(value)) {
@@ -324,33 +338,43 @@ async function createJob(req, res, next) {
 
 async function getApplicants(req, res, next) {
   try {
-    const { rows } = await query(
-      `
-        SELECT
-          a.id,
-          a.status,
-          a.match_score,
-          a.snapshot_data
-        FROM applications a
-        WHERE a.job_id = $1
-        ORDER BY a.applied_at ASC
-      `,
-      [req.params.id],
-    );
+    const [appResult, jobResult] = await Promise.all([
+      query(
+        `SELECT a.id, a.status, a.match_score, a.snapshot_data
+         FROM applications a
+         WHERE a.job_id = $1
+         ORDER BY a.applied_at ASC`,
+        [req.params.id],
+      ),
+      query(
+        `SELECT j.min_cgpa, j.max_active_backlogs, j.allowed_branches, j.graduation_year
+         FROM jobs j WHERE j.id = $1`,
+        [req.params.id],
+      ),
+    ]);
+
+    const job = jobResult.rows[0] || {};
 
     res.json(
-      rows.map((row) => ({
-        id: row.id,
-        name: row.snapshot_data?.full_name,
-        rollNumber: row.snapshot_data?.roll_number,
-        branch: row.snapshot_data?.branch,
-        cgpa: row.snapshot_data?.cgpa,
-        status: mapApplicantStatus(row.status),
-        score: row.match_score,
-        note: buildApplicantNote(row.snapshot_data || {}),
-        resumeUrl: row.snapshot_data?.resume_url || null,
-        email: row.snapshot_data?.email || null,
-      })),
+      appResult.rows.map((row) => {
+        const snap = row.snapshot_data || {};
+        const { eligible, hardFailures } = checkEligibility(snap, job);
+        return {
+          id: row.id,
+          name: snap.full_name,
+          rollNumber: snap.roll_number,
+          branch: snap.branch,
+          cgpa: snap.cgpa,
+          status: mapApplicantStatus(row.status),
+          // Fit score only shown for eligible candidates
+          score: eligible ? row.match_score : null,
+          eligible,
+          hardFailures,
+          note: buildApplicantNote(snap),
+          resumeUrl: snap.resume_url || null,
+          email: snap.email || null,
+        };
+      }),
     );
   } catch (error) {
     next(error);
@@ -360,27 +384,20 @@ async function getApplicants(req, res, next) {
 async function patchApplicantStatus(req, res, next) {
   try {
     const nextStatus = toApplicationStatus(req.body.status);
+    const reason = req.body.reason || null;
+
     const result = await withTransaction(async (client) => {
       const applicationResult = await client.query(
-        `
-          SELECT
-            a.id,
-            a.status,
-            a.snapshot_data,
-            a.match_score,
-            sp.user_id,
-            u.email,
-            j.id AS job_id,
-            j.title,
-            c.name AS company_name
-          FROM applications a
-          JOIN student_profiles sp ON sp.id = a.student_id
-          JOIN users u ON u.id = sp.user_id
-          JOIN jobs j ON j.id = a.job_id
-          JOIN companies c ON c.id = j.company_id
-          WHERE a.id = $1
-            AND a.job_id = $2
-        `,
+        `SELECT a.id, a.status, a.snapshot_data, a.match_score,
+                sp.user_id, u.email,
+                j.id AS job_id, j.title,
+                c.name AS company_name
+         FROM applications a
+         JOIN student_profiles sp ON sp.id = a.student_id
+         JOIN users u ON u.id = sp.user_id
+         JOIN jobs j ON j.id = a.job_id
+         JOIN companies c ON c.id = j.company_id
+         WHERE a.id = $1 AND a.job_id = $2`,
         [req.params.applicantId, req.params.id],
       );
 
@@ -391,36 +408,46 @@ async function patchApplicantStatus(req, res, next) {
         throw error;
       }
 
+      const prevStatus = application.status;
+
       const updateResult = await client.query(
-        `
-          UPDATE applications
-          SET status = $1
-          WHERE id = $2
-          RETURNING id, status, match_score, snapshot_data
-        `,
+        `UPDATE applications SET status = $1 WHERE id = $2
+         RETURNING id, status, match_score, snapshot_data`,
         [nextStatus, application.id],
       );
 
       await client.query(
-        `
-          INSERT INTO notifications (user_id, title, message, type, metadata)
-          VALUES ($1, $2, $3, 'status_update', $4::jsonb)
-        `,
+        `INSERT INTO notifications (user_id, title, message, type, metadata)
+         VALUES ($1, $2, $3, 'status_update', $4::jsonb)`,
         [
           application.user_id,
           "Application status updated",
-          `Your application for ${application.title} at ${application.company_name} is now ${req.body.status}.`,
+          `Your application for ${application.title} at ${application.company_name} is now ${req.body.status}.${reason ? ` Note: ${reason}` : ""}`,
           JSON.stringify({ job_id: application.job_id, application_id: application.id }),
         ],
       );
 
       return {
         updated: updateResult.rows[0],
+        prevStatus,
         email: application.email,
         fullName: application.snapshot_data?.full_name,
         title: application.title,
         companyName: application.company_name,
+        applicationId: application.id,
       };
+    });
+
+    // Write audit log (non-blocking, errors swallowed in service)
+    await createAuditLog({
+      entityType: "application",
+      entityId: result.applicationId,
+      action: "status_changed",
+      changedBy: req.user.id,
+      oldValue: { status: result.prevStatus },
+      newValue: { status: nextStatus },
+      reason,
+      ip: req.ip,
     });
 
     await sendEmail({
@@ -448,6 +475,29 @@ async function exportApplicants(req, res, next) {
     );
     res.setHeader("Content-Disposition", `attachment; filename="${file.fileName}"`);
     res.send(Buffer.from(file.buffer));
+  } catch (error) {
+    next(error);
+  }
+}
+
+// ── Export Template CRUD ──────────────────────────────────────────────────────
+
+async function getExportTemplate(req, res, next) {
+  try {
+    const { companyId } = req.params;
+    const template = await getCompanyTemplate(companyId);
+    const columns  = getAvailableColumns();
+    res.json({ template: template || null, availableColumns: columns });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function saveExportTemplate(req, res, next) {
+  try {
+    const { companyId } = req.params;
+    const template = await upsertCompanyTemplate(companyId, req.body);
+    res.json({ template });
   } catch (error) {
     next(error);
   }
@@ -721,6 +771,22 @@ async function deleteJob(req, res, next) {
   }
 }
 
+async function validateJD(req, res, _next) {
+  const result = checkJD(req.body);
+  res.json(result);
+}
+
+async function getEntityAuditLogs(req, res, next) {
+  try {
+    const { entityType, entityId } = req.query;
+    const limit = Math.min(parseInt(req.query.limit || "50", 10), 200);
+    const logs = await getAuditLogs({ entityType, entityId, limit });
+    res.json(logs);
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   getDashboard,
   listJobs,
@@ -733,12 +799,25 @@ module.exports = {
   closeJob,
   reopenJob,
   deleteJob,
+  validateJD,
+  getEntityAuditLogs,
+  // export templates
+  getExportTemplate,
+  saveExportTemplate,
   // student management
   createStudent,
   listStudents,
   sendStudentSetupLink,
   sendStudentResetLink,
   updateStudent,
+  // bulk student operations
+  bulkUploadPreview,
+  bulkConfirmImport,
+  bulkActivateStudents,
+  bulkDeactivateStudents,
+  bulkAssignBranch,
+  checkDuplicates,
+  getImportFieldDefs,
 };
 
 // ── Student Management ────────────────────────────────────────────────────────
@@ -1004,4 +1083,134 @@ async function updateStudent(req, res, next) {
   } catch (error) {
     return next(error);
   }
+}
+
+// ── Bulk Student Operations ───────────────────────────────────────────────────
+
+async function bulkUploadPreview(req, res, next) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded." });
+    }
+
+    const ext = (req.file.originalname || "").split(".").pop().toLowerCase();
+    const mimeType = ext === "xlsx" ? "xlsx" : "csv";
+
+    // mapping array may be sent as JSON body (for CSV re-map step)
+    let mapping = null;
+    if (req.body.mapping) {
+      try { mapping = JSON.parse(req.body.mapping); } catch (_) { /* ignore */ }
+    }
+
+    const result = await buildPreview(req.file.buffer, mimeType, mapping);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function bulkConfirmImport(req, res, next) {
+  try {
+    const { rows } = req.body; // array of validated row objects
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return res.status(400).json({ error: "No rows provided." });
+    }
+
+    // Only insert rows that passed validation (client should already filter,
+    // but we double-check required fields server-side)
+    const validRows = rows.filter(
+      (r) => r.fullName && r.email && r.enrollmentNo && r.branch && r.graduationYear && r.cgpa,
+    );
+
+    if (validRows.length === 0) {
+      return res.status(400).json({ error: "No valid rows to import." });
+    }
+
+    const result = await bulkInsertStudents(validRows);
+    res.json({
+      created: result.created.length,
+      failed:  result.failed.length,
+      details: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function bulkActivateStudents(req, res, next) {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: "No student IDs provided." });
+    }
+    await query(
+      "UPDATE users SET is_active = TRUE, updated_at = NOW() WHERE id = ANY($1) AND role = 'student'",
+      [ids],
+    );
+    res.json({ updated: ids.length });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function bulkDeactivateStudents(req, res, next) {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: "No student IDs provided." });
+    }
+    await query(
+      "UPDATE users SET is_active = FALSE, updated_at = NOW() WHERE id = ANY($1) AND role = 'student'",
+      [ids],
+    );
+    res.json({ updated: ids.length });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function bulkAssignBranch(req, res, next) {
+  try {
+    const { ids, branch, graduationYear } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: "No student IDs provided." });
+    }
+    if (!branch && !graduationYear) {
+      return res.status(400).json({ error: "Provide branch and/or graduation year." });
+    }
+
+    const branchCode = branch
+      ? branch.split(" ").filter(Boolean).map((w) => w[0]).join("").toUpperCase()
+      : null;
+
+    await query(
+      `UPDATE student_profiles SET
+         branch          = COALESCE($1, branch),
+         branch_code     = COALESCE($2, branch_code),
+         graduation_year = COALESCE($3, graduation_year),
+         updated_at      = NOW()
+       WHERE user_id = ANY($4)`,
+      [branch || null, branchCode || null, graduationYear ? Number(graduationYear) : null, ids],
+    );
+    res.json({ updated: ids.length });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function checkDuplicates(req, res, next) {
+  try {
+    const { rows } = req.body;
+    if (!Array.isArray(rows)) {
+      return res.status(400).json({ error: "rows array required." });
+    }
+    const result = await checkDuplicatesForPayload(rows);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function getImportFieldDefs(_req, res) {
+  res.json(DB_FIELDS);
 }

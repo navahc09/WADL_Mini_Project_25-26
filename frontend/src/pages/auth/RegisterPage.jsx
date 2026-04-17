@@ -15,6 +15,7 @@ import { motion } from "framer-motion";
 import BrandMark from "../../components/BrandMark";
 import Button from "../../components/ui/Button";
 import { useAuth } from "../../hooks/useAuth";
+import FloatingParticles, { FloatingOrbs } from "../../components/FloatingParticles";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -43,6 +44,24 @@ const fadeUp = {
     opacity: 1,
     y: 0,
     transition: { duration: 0.45, ease: [0.25, 0.1, 0.25, 1], delay: i * 0.08 },
+  }),
+};
+
+const sectionVariant = {
+  hidden: { opacity: 0, y: 28 },
+  show: (i = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1], delay: 0.2 + i * 0.1 },
+  }),
+};
+
+const featureItem = {
+  hidden: { opacity: 0, x: -16 },
+  show: (i = 0) => ({
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1], delay: 0.5 + i * 0.12 },
   }),
 };
 
@@ -75,12 +94,24 @@ export default function RegisterPage() {
         <motion.aside
           initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
           className="relative hidden overflow-hidden bg-signature md:flex md:flex-col md:justify-between p-10 lg:p-12"
         >
-          {/* Decorative blobs */}
-          <div className="pointer-events-none absolute -top-16 -left-16 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-16 -right-16 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+          {/* Animated background */}
+          <FloatingOrbs />
+          <FloatingParticles count={28} color="255,255,255" />
+
+          {/* Blobs */}
+          <motion.div
+            className="pointer-events-none absolute -top-16 -left-16 h-80 w-80 rounded-full bg-white/8 blur-3xl"
+            animate={{ scale: [1, 1.18, 1], opacity: [0.08, 0.15, 0.08] }}
+            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="pointer-events-none absolute -bottom-16 -right-16 h-80 w-80 rounded-full bg-white/8 blur-3xl"
+            animate={{ scale: [1, 1.22, 1], opacity: [0.08, 0.13, 0.08] }}
+            transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+          />
 
           {/* Brand */}
           <div className="relative">
@@ -90,16 +121,31 @@ export default function RegisterPage() {
           {/* Hero copy */}
           <div className="relative space-y-6">
             <div className="space-y-4">
-              <span className="inline-block rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-white/70">
+              <motion.span
+                initial={{ opacity: 0, x: -16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="inline-block rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-white/70"
+              >
                 Student Registration
-              </span>
-              <h1 className="font-headline text-4xl font-extrabold leading-[1.08] text-white lg:text-5xl">
+              </motion.span>
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="font-headline text-4xl font-extrabold leading-[1.08] text-white lg:text-5xl"
+              >
                 Your career masterpiece starts here.
-              </h1>
-              <p className="max-w-sm text-sm leading-7 text-white/70">
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="max-w-sm text-sm leading-7 text-white/70"
+              >
                 Join a curated campus ecosystem that helps you discover, apply, and grow with more
                 clarity than the usual placement scramble.
-              </p>
+              </motion.p>
             </div>
 
             {/* Feature list */}
@@ -108,23 +154,48 @@ export default function RegisterPage() {
                 "Verified campus opportunities",
                 "Real-time application tracking",
                 "Direct academic profile integration",
-              ].map((item) => (
-                <div
+              ].map((item, i) => (
+                <motion.div
                   key={item}
-                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-sm"
+                  custom={i}
+                  variants={featureItem}
+                  initial="hidden"
+                  animate="show"
+                  whileHover={{ x: 4, backgroundColor: "rgba(255,255,255,0.18)" }}
+                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-sm transition-colors"
                 >
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-white/80" />
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: i * 0.5 }}
+                  >
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-white/80" />
+                  </motion.div>
                   <span className="text-sm text-white/90">{item}</span>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
 
           {/* Social proof */}
-          <div className="relative rounded-[1.4rem] border border-white/10 bg-white/10 p-5 backdrop-blur-md">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.0 }}
+            className="relative rounded-[1.4rem] border border-white/10 bg-white/10 p-5 backdrop-blur-md"
+          >
             <p className="text-sm font-semibold text-white">2,000+ students joined this semester</p>
             <p className="mt-1 text-xs text-white/60">Build your profile once — stay visible all season.</p>
-          </div>
+            <div className="mt-3 flex gap-1.5">
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="h-1.5 flex-1 rounded-full bg-white/20"
+                  animate={{ opacity: [0.3, 1, 0.3] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+                />
+              ))}
+            </div>
+          </motion.div>
         </motion.aside>
 
         {/* ── Right form panel ── */}
@@ -157,13 +228,17 @@ export default function RegisterPage() {
 
               {/* Section 1 — Account Credentials */}
               <motion.div
-                custom={1} variants={fadeUp} initial="hidden" animate="show"
+                custom={1} variants={sectionVariant} initial="hidden" animate="show"
                 className="rounded-[1.4rem] border border-outline-variant/30 bg-surface-container-lowest p-6 space-y-4"
+                whileHover={{ boxShadow: "0 4px 24px rgba(74,144,198,0.07)" }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-sm font-bold text-on-primary">
+                  <motion.div
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-sm font-bold text-on-primary"
+                  >
                     1
-                  </div>
+                  </motion.div>
                   <h3 className="font-headline text-xl font-bold text-on-surface">
                     Account Credentials
                   </h3>
@@ -184,7 +259,8 @@ export default function RegisterPage() {
                       />
                     </div>
                     {errors.email && (
-                      <p className="ml-1 text-xs font-medium text-error">{errors.email.message}</p>
+                      <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+                        className="ml-1 text-xs font-medium text-error">{errors.email.message}</motion.p>
                     )}
                   </div>
 
@@ -203,7 +279,8 @@ export default function RegisterPage() {
                       />
                     </div>
                     {errors.password ? (
-                      <p className="ml-1 text-xs font-medium text-error">{errors.password.message}</p>
+                      <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+                        className="ml-1 text-xs font-medium text-error">{errors.password.message}</motion.p>
                     ) : (
                       <p className="ml-1 text-xs text-outline">Minimum 8 characters.</p>
                     )}
@@ -213,13 +290,17 @@ export default function RegisterPage() {
 
               {/* Section 2 — Personal Identity */}
               <motion.div
-                custom={2} variants={fadeUp} initial="hidden" animate="show"
+                custom={2} variants={sectionVariant} initial="hidden" animate="show"
                 className="rounded-[1.4rem] border border-outline-variant/30 bg-surface-container-lowest p-6 space-y-4"
+                whileHover={{ boxShadow: "0 4px 24px rgba(74,144,198,0.07)" }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-sm font-bold text-on-primary">
+                  <motion.div
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-sm font-bold text-on-primary"
+                  >
                     2
-                  </div>
+                  </motion.div>
                   <h3 className="font-headline text-xl font-bold text-on-surface">
                     Personal Identity
                   </h3>
@@ -240,7 +321,8 @@ export default function RegisterPage() {
                       />
                     </div>
                     {errors.fullName && (
-                      <p className="ml-1 text-xs font-medium text-error">{errors.fullName.message}</p>
+                      <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+                        className="ml-1 text-xs font-medium text-error">{errors.fullName.message}</motion.p>
                     )}
                   </div>
 
@@ -258,7 +340,8 @@ export default function RegisterPage() {
                       />
                     </div>
                     {errors.phone && (
-                      <p className="ml-1 text-xs font-medium text-error">{errors.phone.message}</p>
+                      <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+                        className="ml-1 text-xs font-medium text-error">{errors.phone.message}</motion.p>
                     )}
                   </div>
                 </div>
@@ -266,13 +349,17 @@ export default function RegisterPage() {
 
               {/* Section 3 — Academic Portfolio */}
               <motion.div
-                custom={3} variants={fadeUp} initial="hidden" animate="show"
+                custom={3} variants={sectionVariant} initial="hidden" animate="show"
                 className="rounded-[1.4rem] border border-outline-variant/30 bg-surface-container-lowest p-6 space-y-4"
+                whileHover={{ boxShadow: "0 4px 24px rgba(74,144,198,0.07)" }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-sm font-bold text-on-primary">
+                  <motion.div
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-sm font-bold text-on-primary"
+                  >
                     3
-                  </div>
+                  </motion.div>
                   <h3 className="font-headline text-xl font-bold text-on-surface">
                     Academic Portfolio
                   </h3>
@@ -289,7 +376,8 @@ export default function RegisterPage() {
                       {...register("rollNumber")}
                     />
                     {errors.rollNumber && (
-                      <p className="ml-1 text-xs font-medium text-error">{errors.rollNumber.message}</p>
+                      <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+                        className="ml-1 text-xs font-medium text-error">{errors.rollNumber.message}</motion.p>
                     )}
                   </div>
 
@@ -304,7 +392,8 @@ export default function RegisterPage() {
                       ))}
                     </select>
                     {errors.branch && (
-                      <p className="ml-1 text-xs font-medium text-error">{errors.branch.message}</p>
+                      <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+                        className="ml-1 text-xs font-medium text-error">{errors.branch.message}</motion.p>
                     )}
                   </div>
 
@@ -319,7 +408,8 @@ export default function RegisterPage() {
                       ))}
                     </select>
                     {errors.graduationYear && (
-                      <p className="ml-1 text-xs font-medium text-error">{errors.graduationYear.message}</p>
+                      <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+                        className="ml-1 text-xs font-medium text-error">{errors.graduationYear.message}</motion.p>
                     )}
                   </div>
 
@@ -335,7 +425,8 @@ export default function RegisterPage() {
                       {...register("cgpa")}
                     />
                     {errors.cgpa && (
-                      <p className="ml-1 text-xs font-medium text-error">{errors.cgpa.message}</p>
+                      <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+                        className="ml-1 text-xs font-medium text-error">{errors.cgpa.message}</motion.p>
                     )}
                   </div>
                 </div>
@@ -346,10 +437,17 @@ export default function RegisterPage() {
                 custom={4} variants={fadeUp} initial="hidden" animate="show"
                 className="flex flex-col gap-3 sm:flex-row"
               >
-                <Button className="flex-1" size="lg" type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Creating account…" : "Initialize Account"}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
+                <motion.div className="flex-1" whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}>
+                  <Button className="w-full" size="lg" type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Creating account…" : "Initialize Account"}
+                    <motion.span
+                      animate={isSubmitting ? {} : { x: [0, 4, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                    </motion.span>
+                  </Button>
+                </motion.div>
                 <Link to="/login">
                   <Button className="w-full sm:w-auto" size="lg" variant="secondary">
                     Already have access?

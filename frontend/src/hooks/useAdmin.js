@@ -103,13 +103,29 @@ export function useUpdateApplicantStatus(jobId) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ applicantId, status }) =>
+    mutationFn: ({ applicantId, status, reason }) =>
       apiClient
-        .patch(`/admin/jobs/${jobId}/applicants/${applicantId}`, { status })
+        .patch(`/admin/jobs/${jobId}/applicants/${applicantId}`, { status, reason })
         .then((response) => response.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "applicants", jobId] });
     },
+  });
+}
+
+export function useAuditLogs({ entityType, entityId } = {}) {
+  return useQuery({
+    queryKey: ["audit-logs", entityType, entityId],
+    queryFn: () =>
+      apiClient.get("/admin/audit-logs", { params: { entityType, entityId } }).then((r) => r.data),
+    enabled: Boolean(entityType),
+  });
+}
+
+export function useValidateJD() {
+  return useMutation({
+    mutationFn: (payload) =>
+      apiClient.post("/admin/jobs/validate", payload).then((r) => r.data),
   });
 }
 
@@ -134,4 +150,88 @@ export function useExportApplicants() {
       return fileName;
     },
   });
+}
+
+// ── Export Templates ───────────────────────────────────────────────────────────
+
+export function useExportTemplate(companyId) {
+  return useQuery({
+    queryKey: ["admin", "export-template", companyId],
+    queryFn: () =>
+      apiClient.get(`/admin/companies/${companyId}/export-template`).then((r) => r.data),
+    enabled: Boolean(companyId),
+  });
+}
+
+export function useSaveExportTemplate(companyId) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) =>
+      apiClient.put(`/admin/companies/${companyId}/export-template`, payload).then((r) => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "export-template", companyId] });
+    },
+  });
+}
+
+// ── Bulk Import ────────────────────────────────────────────────────────────────
+
+export function useBulkUpload() {
+  return useMutation({
+    mutationFn: (formData) =>
+      apiClient
+        .post("/admin/students/bulk-upload", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+        .then((r) => r.data),
+  });
+}
+
+export function useBulkConfirm() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (rows) =>
+      apiClient.post("/admin/students/bulk-confirm", { rows }).then((r) => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-students"] });
+    },
+  });
+}
+
+export function useImportFieldDefs() {
+  return useQuery({
+    queryKey: ["admin", "import-fields"],
+    queryFn: () =>
+      apiClient.get("/admin/students/import/fields").then((r) => r.data),
+    staleTime: Infinity,
+  });
+}
+
+// ── Bulk Actions ───────────────────────────────────────────────────────────────
+
+export function useBulkActions() {
+  const queryClient = useQueryClient();
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["admin-students"] });
+
+  const activate = useMutation({
+    mutationFn: (ids) =>
+      apiClient.post("/admin/students/bulk-activate", { ids }).then((r) => r.data),
+    onSuccess: invalidate,
+  });
+
+  const deactivate = useMutation({
+    mutationFn: (ids) =>
+      apiClient.post("/admin/students/bulk-deactivate", { ids }).then((r) => r.data),
+    onSuccess: invalidate,
+  });
+
+  const assignBranch = useMutation({
+    mutationFn: ({ ids, branch, graduationYear }) =>
+      apiClient
+        .post("/admin/students/bulk-assign-branch", { ids, branch, graduationYear })
+        .then((r) => r.data),
+    onSuccess: invalidate,
+  });
+
+  return { activate, deactivate, assignBranch };
 }

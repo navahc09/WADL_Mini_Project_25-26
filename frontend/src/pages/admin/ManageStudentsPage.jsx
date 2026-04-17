@@ -1,4 +1,5 @@
 import {
+  ChevronDown,
   Loader2,
   Mail,
   Pencil,
@@ -6,7 +7,9 @@ import {
   RefreshCw,
   Search,
   Send,
+  Upload,
   UserRound,
+  Users,
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -17,6 +20,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Button from "../../components/ui/Button";
 import SurfaceCard from "../../components/ui/SurfaceCard";
+import BulkUploadDrawer from "../../components/ui/BulkUploadDrawer";
+import { useBulkActions } from "../../hooks/useAdmin";
 import apiClient from "../../lib/apiClient";
 
 const BRANCH_OPTIONS = [
@@ -29,19 +34,42 @@ const BRANCH_OPTIONS = [
 
 const YEARS = ["2025", "2026", "2027", "2028", "2029"];
 
+const optionalPercent = z
+  .preprocess(
+    (v) => (v === "" || v === null || (typeof v === "number" && isNaN(v)) ? undefined : Number(v)),
+    z.number().min(0, "0–100").max(100, "0–100").optional(),
+  );
+
 const createSchema = z.object({
-  fullName: z.string().min(2, "Required"),
-  email: z.string().email("Invalid email"),
-  enrollmentNo: z.string().min(3, "Required"),
-  phone: z.string().optional().or(z.literal("")),
-  branch: z.string().min(1, "Select branch"),
-  graduationYear: z.string().min(4, "Select year"),
-  cgpa: z.coerce.number().min(0).max(10, "0–10"),
-  gender: z.string().optional().or(z.literal("")),
-  city: z.string().optional().or(z.literal("")),
-  tenthPercent: z.coerce.number().min(0).max(100).optional().or(z.literal("")),
-  twelfthPercent: z.coerce.number().min(0).max(100).optional().or(z.literal("")),
+  fullName: z.string().min(2, "Full name is required"),
+  email: z.string().email("Enter a valid email"),
+  enrollmentNo: z.string().min(3, "Enrollment no. is required"),
+  phone: z.string().optional(),
+  branch: z.string().min(1, "Select a branch"),
+  graduationYear: z.string().min(4, "Select graduation year"),
+  cgpa: z
+    .number({ required_error: "CGPA is required", invalid_type_error: "Enter a valid number (0–10)" })
+    .min(0, "CGPA must be ≥ 0")
+    .max(10, "CGPA must be ≤ 10"),
+  gender: z.string().optional(),
+  city: z.string().optional(),
+  tenthPercent: optionalPercent,
+  twelfthPercent: optionalPercent,
 });
+
+const createDefaults = {
+  fullName: "",
+  email: "",
+  enrollmentNo: "",
+  phone: "",
+  branch: "",
+  graduationYear: "",
+  cgpa: undefined,
+  gender: "",
+  city: "",
+  tenthPercent: undefined,
+  twelfthPercent: undefined,
+};
 
 const editSchema = createSchema.omit({ enrollmentNo: true });
 
@@ -87,9 +115,13 @@ function StudentPanel({ open, onClose, editStudent }) {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(schema) });
+  } = useForm({
+    resolver: zodResolver(schema),
+    mode: "onChange",
+    defaultValues: createDefaults,
+  });
 
-  // Pre-fill form when editing
+  // Pre-fill or clear form when panel opens
   useEffect(() => {
     if (editStudent) {
       reset({
@@ -98,14 +130,14 @@ function StudentPanel({ open, onClose, editStudent }) {
         phone: editStudent.phone || "",
         branch: editStudent.branch || "",
         graduationYear: String(editStudent.graduation_year || ""),
-        cgpa: editStudent.cgpa || "",
+        cgpa: editStudent.cgpa != null ? Number(editStudent.cgpa) : undefined,
         gender: editStudent.gender || "",
         city: editStudent.city || "",
-        tenthPercent: editStudent.tenth_percent || "",
-        twelfthPercent: editStudent.twelfth_percent || "",
+        tenthPercent: editStudent.tenth_percent != null ? Number(editStudent.tenth_percent) : undefined,
+        twelfthPercent: editStudent.twelfth_percent != null ? Number(editStudent.twelfth_percent) : undefined,
       });
     } else {
-      reset({});
+      reset(createDefaults);
     }
   }, [editStudent, reset]);
 
@@ -246,15 +278,15 @@ function StudentPanel({ open, onClose, editStudent }) {
                 </Field>
 
                 <Field label="CGPA *" error={errors.cgpa?.message}>
-                  <Input type="number" step="0.01" {...register("cgpa")} placeholder="e.g. 8.5" />
+                  <Input type="number" step="0.01" min="0" max="10" {...register("cgpa", { valueAsNumber: true })} placeholder="e.g. 8.5" />
                 </Field>
 
                 <Field label="10th %" error={errors.tenthPercent?.message}>
-                  <Input type="number" step="0.01" {...register("tenthPercent")} placeholder="e.g. 88.5" />
+                  <Input type="number" step="0.01" min="0" max="100" {...register("tenthPercent", { valueAsNumber: true })} placeholder="e.g. 88.5" />
                 </Field>
 
                 <Field label="12th %" error={errors.twelfthPercent?.message}>
-                  <Input type="number" step="0.01" {...register("twelfthPercent")} placeholder="e.g. 85.0" />
+                  <Input type="number" step="0.01" min="0" max="100" {...register("twelfthPercent", { valueAsNumber: true })} placeholder="e.g. 85.0" />
                 </Field>
               </div>
             </div>
@@ -278,13 +310,93 @@ function StudentPanel({ open, onClose, editStudent }) {
   );
 }
 
+// ── Bulk Assign Modal ─────────────────────────────────────────────────────────
+function BulkAssignModal({ selectedIds, onClose }) {
+  const [branch, setBranch] = useState("");
+  const [graduationYear, setGraduationYear] = useState("");
+  const { assignBranch } = useBulkActions();
+
+  async function handleAssign() {
+    if (!branch && !graduationYear) {
+      toast.error("Provide at least one field to assign.");
+      return;
+    }
+    try {
+      const result = await assignBranch.mutateAsync({ ids: selectedIds, branch, graduationYear });
+      toast.success(`${result.updated} student(s) updated.`);
+      onClose();
+    } catch (err) {
+      toast.error(err?.response?.data?.error || "Assignment failed.");
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+      <div className="w-full max-w-sm rounded-[1.4rem] bg-surface-container-lowest p-6 shadow-2xl space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-headline text-base font-bold">Assign Branch / Batch</h3>
+          <button onClick={onClose} className="rounded-full p-1 hover:bg-surface-container-low">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <p className="text-xs text-on-surface-variant">
+          Updating <span className="font-semibold text-on-surface">{selectedIds.length}</span> selected student(s). Leave blank to keep existing value.
+        </p>
+
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <span className="text-[11px] font-medium uppercase tracking-wide text-on-surface-variant">Branch</span>
+            <select
+              className="field-shell w-full py-2 text-sm"
+              value={branch}
+              onChange={(e) => setBranch(e.target.value)}
+            >
+              <option value="">Keep existing</option>
+              {BRANCH_OPTIONS.map((b) => <option key={b} value={b}>{b}</option>)}
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[11px] font-medium uppercase tracking-wide text-on-surface-variant">Graduation Year</span>
+            <select
+              className="field-shell w-full py-2 text-sm"
+              value={graduationYear}
+              onChange={(e) => setGraduationYear(e.target.value)}
+            >
+              <option value="">Keep existing</option>
+              {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <div className="flex gap-2 pt-1">
+          <Button className="flex-1" disabled={assignBranch.isPending} onClick={handleAssign}>
+            {assignBranch.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            {assignBranch.isPending ? "Updating…" : "Apply"}
+          </Button>
+          <Button variant="secondary" onClick={onClose}>Cancel</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function ManageStudentsPage() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [panelOpen, setPanelOpen] = useState(false);
-  const [editStudent, setEditStudent] = useState(null); // null = add mode
+  const [editStudent, setEditStudent] = useState(null);
   const [sendingId, setSendingId] = useState(null);
+
+  // Bulk state
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [bulkDrawerOpen,  setBulkDrawerOpen]  = useState(false);
+  const [bulkAssignOpen,  setBulkAssignOpen]  = useState(false);
+  const [bulkActionMenu,  setBulkActionMenu]  = useState(false);
+
+  const { activate, deactivate } = useBulkActions();
 
   function handleSearch(value) {
     setSearch(value);
@@ -292,26 +404,58 @@ export default function ManageStudentsPage() {
     window.__searchTimeout = setTimeout(() => setDebouncedSearch(value), 350);
   }
 
-  function openAdd() {
-    setEditStudent(null);
-    setPanelOpen(true);
-  }
-
-  function openEdit(student) {
-    setEditStudent(student);
-    setPanelOpen(true);
-  }
-
-  function closePanel() {
-    setPanelOpen(false);
-    setEditStudent(null);
-  }
+  function openAdd() { setEditStudent(null); setPanelOpen(true); }
+  function openEdit(student) { setEditStudent(student); setPanelOpen(true); }
+  function closePanel() { setPanelOpen(false); setEditStudent(null); }
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["admin-students", debouncedSearch],
     queryFn: () =>
       apiClient.get("/admin/students", { params: { search: debouncedSearch } }).then((r) => r.data),
   });
+
+  const students = data?.students || [];
+
+  // ── Selection helpers ────────────────────────────────────────────────────────
+  function toggleSelect(id) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    if (selectedIds.size === students.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(students.map((s) => s.id)));
+    }
+  }
+
+  const allSelected   = students.length > 0 && selectedIds.size === students.length;
+  const someSelected  = selectedIds.size > 0;
+  const selectedArray = [...selectedIds];
+
+  async function handleBulkActivate() {
+    try {
+      await activate.mutateAsync(selectedArray);
+      toast.success(`${selectedArray.length} student(s) activated.`);
+      setSelectedIds(new Set());
+    } catch (err) {
+      toast.error(err?.response?.data?.error || "Failed.");
+    }
+  }
+
+  async function handleBulkDeactivate() {
+    try {
+      await deactivate.mutateAsync(selectedArray);
+      toast.success(`${selectedArray.length} student(s) deactivated.`);
+      setSelectedIds(new Set());
+    } catch (err) {
+      toast.error(err?.response?.data?.error || "Failed.");
+    }
+  }
 
   async function handleSendLink(studentId, type) {
     setSendingId(`${studentId}-${type}`);
@@ -329,9 +473,18 @@ export default function ManageStudentsPage() {
     }
   }
 
+  const isBulkBusy = activate.isPending || deactivate.isPending;
+
   return (
     <>
       <StudentPanel open={panelOpen} onClose={closePanel} editStudent={editStudent} />
+      <BulkUploadDrawer open={bulkDrawerOpen} onClose={() => setBulkDrawerOpen(false)} />
+      {bulkAssignOpen && (
+        <BulkAssignModal
+          selectedIds={selectedArray}
+          onClose={() => setBulkAssignOpen(false)}
+        />
+      )}
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -339,11 +492,65 @@ export default function ManageStudentsPage() {
             <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Student Management</p>
             <h2 className="font-headline text-lg font-bold">Students</h2>
           </div>
-          <Button size="sm" onClick={openAdd}>
-            <Plus className="h-4 w-4" />
-            Add Student
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setBulkDrawerOpen(true)}
+              id="bulk-upload-btn"
+            >
+              <Upload className="h-4 w-4" />
+              Bulk Upload
+            </Button>
+            <Button size="sm" onClick={openAdd} id="add-student-btn">
+              <Plus className="h-4 w-4" />
+              Add Student
+            </Button>
+          </div>
         </div>
+
+        {/* ── Bulk Action Toolbar ───────────────────────────────────────────── */}
+        {someSelected && (
+          <div className="flex items-center gap-3 rounded-2xl bg-primary/5 border border-primary/20 px-4 py-2.5">
+            <Users className="h-4 w-4 text-primary shrink-0" />
+            <span className="text-sm font-semibold text-primary flex-1">
+              {selectedIds.size} student{selectedIds.size !== 1 ? "s" : ""} selected
+            </span>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={isBulkBusy}
+              onClick={handleBulkActivate}
+            >
+              {activate.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+              Activate
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={isBulkBusy}
+              onClick={handleBulkDeactivate}
+            >
+              {deactivate.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+              Deactivate
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={isBulkBusy}
+              onClick={() => setBulkAssignOpen(true)}
+            >
+              Assign Branch
+            </Button>
+            <button
+              type="button"
+              onClick={() => setSelectedIds(new Set())}
+              className="rounded-full p-1 text-on-surface-variant hover:bg-surface-container-low"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
         <SurfaceCard className="p-4 space-y-4">
           {/* Search */}
@@ -375,7 +582,17 @@ export default function ManageStudentsPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-outline-variant/30">
-                    {["Student", "Enrollment No.", "Branch", "Year", "CGPA", "Actions"].map((h) => (
+                    {/* Checkbox header */}
+                    <th className="pb-3 pr-3 w-8">
+                      <input
+                        type="checkbox"
+                        checked={allSelected}
+                        onChange={toggleSelectAll}
+                        className="h-3.5 w-3.5 rounded accent-primary cursor-pointer"
+                        title="Select all"
+                      />
+                    </th>
+                    {["Student", "Enrollment No.", "Branch", "Year", "CGPA", "Status", "Actions"].map((h) => (
                       <th
                         key={h}
                         className="pb-3 pr-4 text-left text-xs font-semibold uppercase tracking-wide text-on-surface-variant"
@@ -386,11 +603,22 @@ export default function ManageStudentsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/20">
-                  {(data?.students || []).map((s) => {
+                  {students.map((s) => {
+                    const isChecked      = selectedIds.has(s.id);
                     const isSetupSending = sendingId === `${s.id}-setup`;
                     const isResetSending = sendingId === `${s.id}-reset`;
                     return (
-                      <tr key={s.id} className="group hover:bg-surface-container-low/40 transition-colors">
+                      <tr key={s.id} className={`group transition-colors hover:bg-surface-container-low/40 ${isChecked ? "bg-primary/5" : ""}`}>
+                        {/* Checkbox */}
+                        <td className="py-3 pr-3">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleSelect(s.id)}
+                            className="h-3.5 w-3.5 rounded accent-primary cursor-pointer"
+                          />
+                        </td>
+
                         {/* Student name + email */}
                         <td className="py-3 pr-4">
                           <div className="flex items-center gap-2.5">
@@ -425,6 +653,17 @@ export default function ManageStudentsPage() {
                             : "bg-red-100 text-red-700"
                           }`}>
                             {s.cgpa}
+                          </span>
+                        </td>
+
+                        {/* Active status */}
+                        <td className="py-3 pr-4">
+                          <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                            s.is_active
+                              ? "bg-emerald-100 text-emerald-700"
+                              : "bg-red-100 text-red-600"
+                          }`}>
+                            {s.is_active ? "Active" : "Inactive"}
                           </span>
                         </td>
 
@@ -477,7 +716,7 @@ export default function ManageStudentsPage() {
                 </tbody>
               </table>
 
-              {(data?.students || []).length === 0 && (
+              {students.length === 0 && (
                 <div className="py-14 text-center">
                   <Mail className="mx-auto h-8 w-8 text-outline mb-3" />
                   <p className="text-sm font-medium text-on-surface-variant">
@@ -485,7 +724,7 @@ export default function ManageStudentsPage() {
                   </p>
                   {!debouncedSearch && (
                     <p className="mt-1 text-xs text-outline">
-                      Click "Add Student" to create the first account.
+                      Click "Add Student" or "Bulk Upload" to get started.
                     </p>
                   )}
                 </div>
@@ -495,7 +734,8 @@ export default function ManageStudentsPage() {
 
           {data?.total > 0 && (
             <p className="text-xs text-outline">
-              Showing {data.students.length} of {data.total} students
+              Showing {students.length} of {data.total} students
+              {someSelected && ` · ${selectedIds.size} selected`}
             </p>
           )}
         </SurfaceCard>

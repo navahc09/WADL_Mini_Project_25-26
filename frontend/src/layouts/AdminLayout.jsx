@@ -1,6 +1,7 @@
 import {
   BarChart3,
   BriefcaseBusiness,
+  Building2,
   LayoutDashboard,
   PlusCircle,
   Users,
@@ -28,6 +29,7 @@ export default function AdminLayout() {
     { to: "/admin/students", label: "Students", icon: Users },
     { to: "/admin/jobs", label: "Manage Jobs", icon: BriefcaseBusiness, end: true },
     { to: "/admin/jobs/new", label: "Post Job", icon: PlusCircle, end: true },
+    { to: "/admin/companies", label: "Companies", icon: Building2 },
     { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   ];
 

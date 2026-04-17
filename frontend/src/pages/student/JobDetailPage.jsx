@@ -7,11 +7,12 @@ import {
   FileText,
   Lock,
   MapPin,
+  UploadCloud,
   Wallet,
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import SurfaceCard from "../../components/ui/SurfaceCard";
 import { useApplications, useApplyToJob } from "../../hooks/useApplications";
@@ -20,12 +21,12 @@ import { useDocuments } from "../../hooks/useStudent";
 
 export default function JobDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { data: job, isLoading, isError, error } = useJob(id);
   const { data: applications = [] } = useApplications("all");
   const { mutateAsync: applyToJob, isPending: isApplying } = useApplyToJob();
   const { data: documents = [] } = useDocuments();
 
-  const [showResumePicker, setShowResumePicker] = useState(false);
   const resumes = documents.filter((d) => d.type?.toLowerCase().includes("resume"));
   const primaryResume = resumes.find((d) => d.primary) || resumes[0] || null;
   const [selectedDocId, setSelectedDocId] = useState(null);
@@ -159,12 +160,24 @@ export default function JobDetailPage() {
                 </div>
               ) : (
                 <>
-                  {showResumePicker && resumes.length > 0 && (
-                    <div className="space-y-1.5 rounded-xl border border-surface-container-low bg-surface-container-low/50 p-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-outline">Select Resume</p>
-                      {resumes.map((doc) => (
+                  {/* Resume picker — always visible */}
+                  <div className="space-y-1.5 rounded-xl border border-outline-variant/30 bg-surface-container-low/50 p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-outline">Resume to attach</p>
+                    {resumes.length === 0 ? (
+                      <div className="flex flex-col items-center gap-2 py-3 text-center">
+                        <p className="text-xs text-on-surface-variant">No resumes uploaded yet.</p>
+                        <button
+                          type="button"
+                          onClick={() => navigate("/student/documents")}
+                          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 transition-colors"
+                        >
+                          <UploadCloud className="h-3.5 w-3.5" /> Upload a resume
+                        </button>
+                      </div>
+                    ) : (
+                      resumes.map((doc) => (
                         <label key={doc.id} className={`flex cursor-pointer items-center gap-2 rounded-xl p-2 transition-colors ${
-                          (selectedDocId || primaryResume?.id) === doc.id
+                          (selectedDocId ?? primaryResume?.id) === doc.id
                             ? "bg-primary/10 ring-1 ring-primary"
                             : "hover:bg-surface-container-lowest"
                         }`}>
@@ -172,7 +185,7 @@ export default function JobDetailPage() {
                             checked={(selectedDocId ?? primaryResume?.id) === doc.id}
                             onChange={() => setSelectedDocId(doc.id)} className="accent-primary" />
                           <FileText className="h-3.5 w-3.5 shrink-0 text-primary" />
-                          <div className="min-w-0">
+                          <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-semibold text-on-surface">{doc.name}</p>
                             <p className="text-xs text-on-surface-variant">{doc.size} · {doc.updatedAt}</p>
                           </div>
@@ -180,12 +193,11 @@ export default function JobDetailPage() {
                             <span className="ml-auto shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">Primary</span>
                           )}
                         </label>
-                      ))}
-                    </div>
-                  )}
-                  <Button className="w-full" disabled={isApplying || !job.eligible}
+                      ))
+                    )}
+                  </div>
+                  <Button className="w-full" disabled={isApplying || !job.eligible || resumes.length === 0}
                     onClick={async () => {
-                      if (resumes.length > 1 && !showResumePicker) { setShowResumePicker(true); return; }
                       try {
                         await applyToJob({ jobId: job.id, documentId: selectedDocId || primaryResume?.id });
                         toast.success(`Applied to ${job.title} at ${job.company}.`);
@@ -194,7 +206,7 @@ export default function JobDetailPage() {
                         toast.error(applyError?.response?.data?.error || (Array.isArray(details) ? details.join(", ") : null) || "Application failed.");
                       }
                     }}>
-                    {isApplying ? "Submitting…" : resumes.length > 1 && !showResumePicker ? "Select Resume & Apply" : "Apply with selected resume"}
+                    {isApplying ? "Submitting…" : "Apply with selected resume"}
                   </Button>
                 </>
               )}

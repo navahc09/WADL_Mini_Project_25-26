@@ -2,6 +2,7 @@ const { query } = require("../db");
 const { createApplication } = require("../services/application.service");
 const { mapApplicationRow } = require("../services/presentation.service");
 
+
 async function listApplications(req, res, next) {
   try {
     const status = req.query.status && req.query.status !== "all" ? req.query.status : null;
@@ -39,6 +40,7 @@ async function listApplications(req, res, next) {
           j.title,
           j.salary_label,
           j.salary_lpa,
+          j.application_deadline,
           c.name AS company_name,
           COALESCE(
             json_agg(
@@ -55,7 +57,7 @@ async function listApplications(req, res, next) {
         JOIN companies c ON c.id = j.company_id
         LEFT JOIN interview_rounds ir ON ir.application_id = a.id
         WHERE ${conditions.join(" AND ")}
-        GROUP BY a.id, j.title, j.salary_label, j.salary_lpa, c.name
+        GROUP BY a.id, j.title, j.salary_label, j.salary_lpa, j.application_deadline, c.name
         ORDER BY a.applied_at DESC
       `,
       params,
@@ -75,6 +77,51 @@ async function applyToJob(req, res, next) {
       req.body.documentId || null,
     );
     res.status(201).json(application);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function getApplication(req, res, next) {
+  try {
+    const { rows: profileRows } = await query(
+      "SELECT id FROM student_profiles WHERE user_id = $1",
+      [req.user.id],
+    );
+    const profile = profileRows[0];
+    if (!profile) return res.status(404).json({ error: "Student profile not found" });
+
+    const { rows } = await query(
+      `
+        SELECT
+          a.*,
+          j.title,
+          j.salary_label,
+          j.salary_lpa,
+          j.application_deadline,
+          c.name AS company_name,
+          COALESCE(
+            json_agg(
+              DISTINCT jsonb_build_object(
+                'round_type', ir.round_type,
+                'scheduled_at', ir.scheduled_at,
+                'result', ir.result
+              )
+            ) FILTER (WHERE ir.id IS NOT NULL),
+            '[]'::json
+          ) AS interview_rounds
+        FROM applications a
+        JOIN jobs j ON j.id = a.job_id
+        JOIN companies c ON c.id = j.company_id
+        LEFT JOIN interview_rounds ir ON ir.application_id = a.id
+        WHERE a.id = $1 AND a.student_id = $2
+        GROUP BY a.id, j.title, j.salary_label, j.salary_lpa, j.application_deadline, c.name
+      `,
+      [req.params.id, profile.id],
+    );
+
+    if (!rows[0]) return res.status(404).json({ error: "Application not found" });
+    res.json(mapApplicationRow(rows[0]));
   } catch (error) {
     next(error);
   }
@@ -152,6 +199,7 @@ async function changeResume(req, res, next) {
 
 module.exports = {
   listApplications,
+  getApplication,
   applyToJob,
   changeResume,
 };

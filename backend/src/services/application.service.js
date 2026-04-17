@@ -137,6 +137,16 @@ async function createApplication(studentUserId, jobId, documentId = null) {
       workExperiences: profile.work_experiences || [],
     };
 
+    // Resolve file_name for the chosen document (or profile default)
+    let resumeFileName = null;
+    if (documentId) {
+      const docResult = await client.query(
+        `SELECT file_name FROM documents WHERE id = $1 AND student_id = $2 AND doc_type = 'resume'`,
+        [documentId, profile.id],
+      );
+      resumeFileName = docResult.rows[0]?.file_name || null;
+    }
+
     const snapshot = {
       full_name: profile.full_name,
       email: profile.email,
@@ -146,6 +156,8 @@ async function createApplication(studentUserId, jobId, documentId = null) {
       graduation_year: profile.graduation_year,
       skills: profile.skills || [],
       resume_url: resumeSignedUrl,
+      resume_file_name: resumeFileName,
+      document_id: documentId || null,
       tenth_percent: Number(profile.tenth_percent),
       twelfth_percent: Number(profile.twelfth_percent),
       active_backlogs: profile.active_backlogs,

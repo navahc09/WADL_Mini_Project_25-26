@@ -57,10 +57,21 @@ export function useDocuments() {
     },
   });
 
+  const setPrimaryMutation = useMutation({
+    mutationFn: (documentId) =>
+      apiClient.patch(`/documents/${documentId}/primary`).then((r) => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["student", "documents"] });
+      queryClient.invalidateQueries({ queryKey: ["student", "dashboard"] });
+    },
+  });
+
   return {
     ...query,
     uploadDocument: uploadMutation.mutateAsync,
     isUploading: uploadMutation.isPending,
+    setPrimary: setPrimaryMutation.mutateAsync,
+    isSettingPrimary: setPrimaryMutation.isPending,
     accessDocument: (documentId, action = "view") =>
       apiClient
         .get(`/documents/${documentId}/access`, {

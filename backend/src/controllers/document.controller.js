@@ -56,7 +56,22 @@ async function uploadDocument(req, res, next) {
     const docType = inferDocType(req.file, req.body.docType);
     const isPrimary = String(req.body.primary).toLowerCase() === "true" || docType === "resume";
     const folder = docType === "resume" ? "resumes" : "documents";
-    const s3Key = await uploadFile(req.file.buffer, req.file.mimetype, folder, req.file.originalname);
+
+    let s3Key;
+    try {
+      s3Key = await uploadFile(req.file.buffer, req.file.mimetype, folder, req.file.originalname);
+    } catch (s3Err) {
+      console.error("[S3 Upload Error]", {
+        message: s3Err.message,
+        code: s3Err.Code || s3Err.$metadata?.httpStatusCode,
+        region: process.env.AWS_REGION,
+        bucket: process.env.S3_BUCKET_NAME,
+        hasKey: Boolean(process.env.AWS_ACCESS_KEY_ID),
+      });
+      const err = new Error("File upload to storage failed. Check S3 bucket permissions and credentials.");
+      err.statusCode = 502;
+      throw err;
+    }
 
     const document = await withTransaction(async (client) => {
       if (isPrimary) {
@@ -116,6 +131,47 @@ async function uploadDocument(req, res, next) {
   }
 }
 
+async function setPrimaryDocument(req, res, next) {
+  try {
+    const studentId = await loadStudentProfileId(req.user.id);
+    if (!studentId) return res.status(404).json({ error: "Student profile not found" });
+
+    const { rows } = await query(
+      "SELECT id, doc_type FROM documents WHERE id = $1 AND student_id = $2",
+      [req.params.id, studentId],
+    );
+    const doc = rows[0];
+    if (!doc) return res.status(404).json({ error: "Document not found" });
+
+    await withTransaction(async (client) => {
+      await client.query(
+        "UPDATE documents SET is_primary = FALSE WHERE student_id = $1 AND doc_type = $2",
+        [studentId, doc.doc_type],
+      );
+      await client.query(
+        "UPDATE documents SET is_primary = TRUE WHERE id = $1",
+        [req.params.id],
+      );
+      if (doc.doc_type === "resume") {
+        const { rows: docRows } = await client.query(
+          "SELECT s3_key FROM documents WHERE id = $1",
+          [req.params.id],
+        );
+        if (docRows[0]) {
+          await client.query(
+            "UPDATE student_profiles SET resume_s3_key = $1, resume_url = $2 WHERE id = $3",
+            [docRows[0].s3_key, `s3://${process.env.S3_BUCKET_NAME}/${docRows[0].s3_key}`, studentId],
+          );
+        }
+      }
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function accessDocument(req, res, next) {
   try {
     const { rows } = await query(
@@ -162,5 +218,6 @@ async function accessDocument(req, res, next) {
 module.exports = {
   listDocuments,
   uploadDocument,
+  setPrimaryDocument,
   accessDocument,
 };

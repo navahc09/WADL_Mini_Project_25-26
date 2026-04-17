@@ -1,4 +1,4 @@
-import { Download, ExternalLink, FileText, ShieldCheck, Sparkles } from "lucide-react";
+import { Download, ExternalLink, FileText, ShieldCheck, Sparkles, Star } from "lucide-react";
 import { toast } from "react-hot-toast";
 import Button from "../../components/ui/Button";
 import FileUploader from "../../components/FileUploader";
@@ -13,8 +13,19 @@ export default function DocumentVaultPage() {
     error,
     uploadDocument,
     isUploading,
+    setPrimary,
+    isSettingPrimary,
     accessDocument,
   } = useDocuments();
+
+  async function handleSetPrimary(docId) {
+    try {
+      await setPrimary(docId);
+      toast.success("Primary resume updated.");
+    } catch {
+      toast.error("Could not update primary resume.");
+    }
+  }
 
   async function openDocument(documentId, action = "view") {
     try {
@@ -87,11 +98,21 @@ export default function DocumentVaultPage() {
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  {document.primary && (
+                  {document.primary ? (
                     <span className="rounded-full bg-primary-fixed px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-on-primary-fixed-variant">
                       Primary
                     </span>
-                  )}
+                  ) : document.type?.toLowerCase().includes("resume") ? (
+                    <button
+                      type="button"
+                      disabled={isSettingPrimary}
+                      onClick={() => void handleSetPrimary(document.id)}
+                      className="flex items-center gap-1 rounded-full border border-outline-variant/40 px-2.5 py-1 text-[10px] font-semibold text-on-surface-variant transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary disabled:opacity-50"
+                      title="Set as primary resume"
+                    >
+                      <Star className="h-3 w-3" /> Set Primary
+                    </button>
+                  ) : null}
                   <Button variant="ghost" size="sm" onClick={() => void openDocument(document.id, "view")}>
                     <ExternalLink className="h-3.5 w-3.5" /> View
                   </Button>

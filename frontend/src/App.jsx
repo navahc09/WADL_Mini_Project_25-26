@@ -14,6 +14,7 @@ const ProfilePage = lazy(() => import("./pages/student/ProfilePage"));
 const JobBoardPage = lazy(() => import("./pages/student/JobBoardPage"));
 const JobDetailPage = lazy(() => import("./pages/student/JobDetailPage"));
 const MyApplicationsPage = lazy(() => import("./pages/student/MyApplicationsPage"));
+const ApplicationDetailPage = lazy(() => import("./pages/student/ApplicationDetailPage"));
 const DocumentVaultPage = lazy(() => import("./pages/student/DocumentVaultPage"));
 const NotificationsPage = lazy(() => import("./pages/student/NotificationsPage"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
@@ -23,6 +24,8 @@ const ApplicantsPage = lazy(() => import("./pages/admin/ApplicantsPage"));
 const EditJobPage = lazy(() => import("./pages/admin/EditJobPage"));
 const PlacementAnalyticsPage = lazy(() => import("./pages/admin/PlacementAnalyticsPage"));
 const ManageStudentsPage = lazy(() => import("./pages/admin/ManageStudentsPage"));
+const CompanyConsolePage = lazy(() => import("./pages/admin/CompanyConsolePage"));
+const CompanyExportTemplatePage = lazy(() => import("./pages/admin/CompanyExportTemplatePage"));
 
 function RoleHomeRedirect() {
   const { user } = useAuth();
@@ -72,6 +75,7 @@ export default function App() {
             <Route path="jobs" element={<JobBoardPage />} />
             <Route path="jobs/:id" element={<JobDetailPage />} />
             <Route path="applications" element={<MyApplicationsPage />} />
+            <Route path="applications/:id" element={<ApplicationDetailPage />} />
             <Route path="documents" element={<DocumentVaultPage />} />
             <Route path="notifications" element={<NotificationsPage />} />
           </Route>
@@ -90,6 +94,8 @@ export default function App() {
             <Route path="jobs" element={<ManageJobsPage />} />
             <Route path="jobs/:id/edit" element={<EditJobPage />} />
             <Route path="jobs/:id/applicants" element={<ApplicantsPage />} />
+            <Route path="companies" element={<CompanyConsolePage />} />
+            <Route path="companies/:companyId/export-template" element={<CompanyExportTemplatePage />} />
             <Route path="analytics" element={<PlacementAnalyticsPage />} />
           </Route>
 

@@ -11,6 +11,7 @@ const adminRoutes = require("./routes/admin.routes");
 const documentRoutes = require("./routes/document.routes");
 const notificationRoutes = require("./routes/notification.routes");
 const interviewRoutes = require("./routes/interview.routes");
+const companyRoutes = require("./routes/company.routes");
 const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
@@ -64,6 +65,7 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/admin", interviewRoutes);
 app.use("/api/v1/documents", documentRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
+app.use("/api/v1/companies", companyRoutes);
 
 app.use(errorHandler);
 

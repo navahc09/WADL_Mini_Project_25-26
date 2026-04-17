@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import BrandMark from "../../components/BrandMark";
 import Button from "../../components/ui/Button";
 import { useAuth } from "../../hooks/useAuth";
+import FloatingParticles, { FloatingOrbs } from "../../components/FloatingParticles";
 
 const studentSchema = z.object({
   enrollmentNo: z.string().min(3, "Enter your enrollment number (e.g. I2K231262)"),
@@ -27,6 +28,16 @@ const fadeUp = {
     y: 0,
     transition: { duration: 0.45, ease: [0.25, 0.1, 0.25, 1], delay: i * 0.07 },
   }),
+};
+
+const staggerContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.3 } },
+};
+
+const statCard = {
+  hidden: { opacity: 0, y: 24, scale: 0.92 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } },
 };
 
 export default function LoginPage() {
@@ -72,11 +83,24 @@ export default function LoginPage() {
         <motion.aside
           initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
           className="relative hidden overflow-hidden bg-signature md:flex md:flex-col md:justify-between p-10 lg:p-14"
         >
-          <div className="pointer-events-none absolute -top-16 -left-16 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-16 -right-16 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+          {/* Animated background layers */}
+          <FloatingOrbs />
+          <FloatingParticles count={32} color="255,255,255" />
+
+          {/* Gradient blobs */}
+          <motion.div
+            className="pointer-events-none absolute -top-16 -left-16 h-80 w-80 rounded-full bg-white/8 blur-3xl"
+            animate={{ scale: [1, 1.15, 1], opacity: [0.08, 0.14, 0.08] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="pointer-events-none absolute -bottom-16 -right-16 h-80 w-80 rounded-full bg-white/8 blur-3xl"
+            animate={{ scale: [1, 1.2, 1], opacity: [0.08, 0.12, 0.08] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          />
 
           <div className="relative">
             <BrandMark compact inverted />
@@ -84,46 +108,85 @@ export default function LoginPage() {
 
           <div className="relative space-y-6">
             <div className="space-y-4">
-              <span className="inline-block rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-white/70">
+              <motion.span
+                initial={{ opacity: 0, x: -16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="inline-block rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-white/70"
+              >
                 TNP Connect
-              </span>
-              <h1 className="font-headline text-4xl font-extrabold leading-[1.08] text-white lg:text-5xl">
+              </motion.span>
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="font-headline text-4xl font-extrabold leading-[1.08] text-white lg:text-5xl"
+              >
                 Your career, curated with editorial clarity.
-              </h1>
-              <p className="max-w-sm text-sm leading-7 text-white/70">
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="max-w-sm text-sm leading-7 text-white/70"
+              >
                 Sign in to explore roles, track applications, and drive placement operations from one
                 polished campus platform.
-              </p>
+              </motion.p>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-3 gap-3"
+            >
               {[
                 { value: "77%", label: "Placement rate" },
                 { value: "18+", label: "Active roles" },
                 { value: "1,912", label: "Placed this season" },
               ].map((s) => (
-                <div key={s.label} className="rounded-2xl border border-white/10 bg-white/10 p-4 text-center backdrop-blur-sm">
+                <motion.div
+                  key={s.label}
+                  variants={statCard}
+                  whileHover={{ scale: 1.06, backgroundColor: "rgba(255,255,255,0.18)" }}
+                  className="rounded-2xl border border-white/10 bg-white/10 p-4 text-center backdrop-blur-sm cursor-default"
+                >
                   <p className="font-headline text-2xl font-extrabold text-white">{s.value}</p>
                   <p className="mt-1 text-xs text-white/60">{s.label}</p>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
 
-          <div className="relative rounded-[1.4rem] border border-white/10 bg-white/10 p-5 backdrop-blur-md">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.9 }}
+            className="relative rounded-[1.4rem] border border-white/10 bg-white/10 p-5 backdrop-blur-md"
+          >
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-white/15 p-3">
+              <motion.div
+                className="rounded-2xl bg-white/15 p-3"
+                animate={{ rotate: [0, 8, -8, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+              >
                 <Sparkles className="h-4 w-4 text-white" />
-              </div>
+              </motion.div>
               <div>
                 <p className="text-sm font-semibold text-white">Placement Snapshot</p>
                 <p className="text-xs text-white/60">85% of shortlisted students had complete profiles</p>
               </div>
             </div>
-            <div className="mt-4 h-1.5 rounded-full bg-white/15">
-              <div className="h-full w-[85%] rounded-full bg-white" />
+            <div className="mt-4 h-1.5 rounded-full bg-white/15 overflow-hidden">
+              <motion.div
+                className="h-full rounded-full bg-white"
+                initial={{ width: 0 }}
+                animate={{ width: "85%" }}
+                transition={{ duration: 1.2, delay: 1.2, ease: [0.25, 0.1, 0.25, 1] }}
+              />
             </div>
-          </div>
+          </motion.div>
         </motion.aside>
 
         {/* ── Right form panel ── */}
@@ -155,9 +218,10 @@ export default function LoginPage() {
                 { value: "student", label: "Student Login" },
                 { value: "admin", label: "Placement Cell" },
               ].map((option) => (
-                <button
+                <motion.button
                   key={option.value}
                   type="button"
+                  whileTap={{ scale: 0.97 }}
                   className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
                     role === option.value
                       ? "bg-surface-container-lowest text-primary shadow-sm"
@@ -166,7 +230,7 @@ export default function LoginPage() {
                   onClick={() => switchRole(option.value)}
                 >
                   {option.label}
-                </button>
+                </motion.button>
               ))}
             </motion.div>
 
@@ -174,8 +238,13 @@ export default function LoginPage() {
             <motion.form custom={2} variants={fadeUp} initial="hidden" animate="show" className="space-y-4" onSubmit={onSubmit}>
 
               {isStudent ? (
-                /* Enrollment number field */
-                <div className="space-y-1.5">
+                <motion.div
+                  key="enrollment"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-1.5"
+                >
                   <label className="ml-1 block text-sm font-medium text-on-surface-variant">
                     Enrollment Number
                   </label>
@@ -189,12 +258,23 @@ export default function LoginPage() {
                     />
                   </div>
                   {errors.enrollmentNo && (
-                    <p className="ml-1 text-xs font-medium text-error">{errors.enrollmentNo.message}</p>
+                    <motion.p
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="ml-1 text-xs font-medium text-error"
+                    >
+                      {errors.enrollmentNo.message}
+                    </motion.p>
                   )}
-                </div>
+                </motion.div>
               ) : (
-                /* Admin email field */
-                <div className="space-y-1.5">
+                <motion.div
+                  key="email"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-1.5"
+                >
                   <label className="ml-1 block text-sm font-medium text-on-surface-variant">
                     Admin Email
                   </label>
@@ -208,9 +288,15 @@ export default function LoginPage() {
                     />
                   </div>
                   {errors.email && (
-                    <p className="ml-1 text-xs font-medium text-error">{errors.email.message}</p>
+                    <motion.p
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="ml-1 text-xs font-medium text-error"
+                    >
+                      {errors.email.message}
+                    </motion.p>
                   )}
-                </div>
+                </motion.div>
               )}
 
               {/* Password */}
@@ -227,23 +313,37 @@ export default function LoginPage() {
                     autoComplete="current-password"
                     {...register("password")}
                   />
-                  <button
+                  <motion.button
                     type="button"
+                    whileTap={{ scale: 0.9 }}
                     className="shrink-0 text-outline transition-colors hover:text-on-surface"
                     onClick={() => setShowPassword((v) => !v)}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
+                  </motion.button>
                 </div>
                 {errors.password && (
-                  <p className="ml-1 text-xs font-medium text-error">{errors.password.message}</p>
+                  <motion.p
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="ml-1 text-xs font-medium text-error"
+                  >
+                    {errors.password.message}
+                  </motion.p>
                 )}
               </div>
 
-              <Button className="w-full" size="lg" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Signing in…" : "Sign in to portal"}
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+              <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}>
+                <Button className="w-full" size="lg" type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Signing in…" : "Sign in to portal"}
+                  <motion.span
+                    animate={isSubmitting ? {} : { x: [0, 4, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </motion.span>
+                </Button>
+              </motion.div>
             </motion.form>
 
             {/* Forgot password notice */}
@@ -260,7 +360,6 @@ export default function LoginPage() {
               </motion.div>
             )}
 
-            {/* Account note for students */}
             {isStudent && (
               <motion.p custom={4} variants={fadeUp} initial="hidden" animate="show" className="text-center text-xs leading-5 text-outline">
                 Your account is created by the TnP office. If you haven't received your setup

@@ -14,6 +14,7 @@ router.post(
   validate(uploadDocumentSchema),
   documentController.uploadDocument,
 );
+router.patch("/:id/primary", authenticate, requireRole("student"), documentController.setPrimaryDocument);
 router.get("/:id/access", authenticate, documentController.accessDocument);
 
 module.exports = router;
