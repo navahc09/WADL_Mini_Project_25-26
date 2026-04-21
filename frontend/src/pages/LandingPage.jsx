@@ -180,7 +180,7 @@ export default function LandingPage() {
         {/* ── Hero ── */}
         <section className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-8">
-            <motion.span
+            {/*<motion.span
               variants={fadeUp}
               custom={0}
               className="section-label inline-flex items-center gap-2"
@@ -192,7 +192,7 @@ export default function LandingPage() {
                 <Zap className="h-3 w-3 text-primary" />
               </motion.span>
               Placement Platform
-            </motion.span>
+            </motion.span>*/}
 
             <motion.h1
               variants={fadeUp}
