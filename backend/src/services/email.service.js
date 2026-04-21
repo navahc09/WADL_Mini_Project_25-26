@@ -4,17 +4,15 @@ const region = process.env.AWS_REGION;
 const fromEmail = process.env.SES_FROM_EMAIL;
 
 function buildClient() {
-  const hasStaticCredentials =
-    process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY;
+  const accessKeyId =
+    process.env.SES_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID;
+  const secretAccessKey =
+    process.env.SES_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY;
 
   return new SESClient({
     region,
-    credentials: hasStaticCredentials
-      ? {
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-          sessionToken: process.env.AWS_SESSION_TOKEN || undefined,
-        }
+    credentials: accessKeyId && secretAccessKey
+      ? { accessKeyId, secretAccessKey }
       : undefined,
   });
 }

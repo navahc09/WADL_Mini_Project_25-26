@@ -75,6 +75,8 @@ jobs:
             AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
             S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}
+            SES_AWS_ACCESS_KEY_ID=${{ secrets.SES_AWS_ACCESS_KEY_ID }}
+            SES_AWS_SECRET_ACCESS_KEY=${{ secrets.SES_AWS_SECRET_ACCESS_KEY }}
             SES_FROM_EMAIL=${{ secrets.SES_FROM_EMAIL }}
             SES_CONFIGURATION_SET=${{ secrets.SES_CONFIGURATION_SET }}
             FRONTEND_URL=${{ secrets.FRONTEND_URL }}
