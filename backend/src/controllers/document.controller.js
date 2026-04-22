@@ -36,6 +36,7 @@ async function listDocuments(req, res, next) {
       [studentId],
     );
 
+    res.setHeader("Cache-Control", "no-store");
     res.json(rows.map(mapDocumentRow));
   } catch (error) {
     next(error);
